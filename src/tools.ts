@@ -45,7 +45,3 @@ export const tools = {
 };
 
 export type ToolName = keyof typeof tools;
-
-// temporary test - remove after verifying
-console.log(tools.list_directory("."));
-console.log(tools.read_file("package.json"));
