@@ -9,22 +9,24 @@ interface Message {
   content: string;
 }
 
-const SYSTEM_PROMPT = `You are a helpful coding assistant with access to the following tools:
+const SYSTEM_PROMPT = `You are a helpful coding assistant with access to these tools:
 
-- read_file: Read contents of a file
-- list_directory: List files in a directory  
-- run_shell: Execute a shell command
+- read_file: Read the EXACT contents of a file. Use this for reading any file.
+- list_directory: List files in a directory. Use this to explore folder structure.
+- run_shell: Execute a shell command. Use ONLY for running code, not for reading files.
 
-When you need to use a tool, respond ONLY in this exact format:
+Rules:
+1. ALWAYS use read_file to read files, never run_shell with cat.
+2. When you receive a tool result, report the EXACT content. Do NOT summarize, invent, or paraphrase file contents.
+3. Call ONLY ONE tool at a time. Wait for the result before deciding next step.
+4. Once you have enough information to answer, respond normally WITHOUT calling any more tools.
+5. Respond ONLY in this format when calling a tool:
 TOOL: tool_name | argument
 
 Examples:
-TOOL: read_file | src/index.ts
+TOOL: read_file | package.json
 TOOL: list_directory | src
-TOOL: run_shell | echo hello
-
-After receiving the tool result, continue helping the user.
-If you don't need a tool, just respond normally.`;
+TOOL: run_shell | node index.js`;
 
 const messages: Message[] = [{ role: "system", content: SYSTEM_PROMPT }];
 
@@ -46,7 +48,6 @@ async function callOllama(): Promise<string> {
 async function runAgentLoop(userInput: string): Promise<string> {
   messages.push({ role: "user", content: userInput });
 
-  // Max 5 iterations to prevent infinite loops
   for (let i = 0; i < 5; i++) {
     const response = await callOllama();
     messages.push({ role: "assistant", content: response });
@@ -54,18 +55,27 @@ async function runAgentLoop(userInput: string): Promise<string> {
     const toolCall = parseToolCall(response);
 
     if (!toolCall) {
-      // No tool call — agent is done, return final response
+      // No tool call — agent is done
       return response;
     }
 
-    // Execute the tool and feed result back to agent
     console.log(`\n[Tool: ${toolCall.name} | ${toolCall.argument}]`);
     const result = executeTool(toolCall);
     console.log(`[Result: ${result.success ? "success" : "failed"}]\n`);
 
+    if (!result.success) {
+      // Tell model the tool failed and let it try once more
+      messages.push({
+        role: "user",
+        content: `Tool failed: ${result.output}. Try a different approach or answer without the tool.`,
+      });
+      continue;
+    }
+
+    // Tool succeeded — force model to answer NOW with the result
     messages.push({
       role: "user",
-      content: `Tool result:\n${result.output}`,
+      content: `Tool result:\n${result.output}\n\nNow answer the user's original question using ONLY this result. Do not call any more tools.`,
     });
   }
 
