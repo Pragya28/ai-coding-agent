@@ -1,5 +1,6 @@
 import * as readline from "readline";
 import { parseToolCall, executeTool } from "./tool-parser";
+import { getContextStats, trimMessages } from "./context-manager";
 
 const OLLAMA_URL = "http://localhost:11434/api/chat";
 const MODEL = "llama3.2";
@@ -31,12 +32,14 @@ TOOL: run_shell | node index.js`;
 const messages: Message[] = [{ role: "system", content: SYSTEM_PROMPT }];
 
 async function callOllama(): Promise<string> {
+  const trimmed = trimMessages(messages);
+
   const response = await fetch(OLLAMA_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: MODEL,
-      messages,
+      messages: trimmed,
       stream: false,
     }),
   });
@@ -107,7 +110,8 @@ async function main() {
 
       try {
         const response = await runAgentLoop(userInput);
-        console.log(`\nAgent: ${response}\n`);
+        console.log(`\nAgent: ${response}`);
+        console.log(getContextStats(messages) + "\n");
       } catch (error) {
         console.error("Error:", error);
       }
