@@ -3,7 +3,7 @@ import { parseToolCall, executeTool } from "./tool-parser";
 import { getContextStats, trimMessages } from "./context-manager";
 
 const OLLAMA_URL = "http://localhost:11434/api/chat";
-const MODEL = "llama3.2";
+const MODEL = "qwen2.5-coder:3b";
 
 interface Message {
   role: "user" | "assistant" | "system";
