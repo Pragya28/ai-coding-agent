@@ -1,6 +1,9 @@
 export const OLLAMA_URL = "http://localhost:11434/api/chat";
 export const MODEL = "qwen2.5-coder:3b";
+
 export const PLAN_MODE = process.argv.includes("--plan");
+export const WORKSPACE = process.env.WORKSPACE ?? ".";
+
 export const MAX_ITERATIONS = 5;
 
 export const SYSTEM_PROMPT = `You are a helpful coding assistant with access to these tools:
@@ -15,7 +18,8 @@ Rules:
 3. Call ONLY ONE tool at a time. Wait for the result before deciding next step.
 4. Once you have enough information to answer, respond normally WITHOUT calling any more tools.
 5. ONLY use tools when the user explicitly asks to read a file, list a directory, or run an existing command.
-6. For general knowledge questions, explanations, or concepts — answer directly WITHOUT using any tools.
+6. All file operations should be relative to the workspace: ${WORKSPACE}. Always prefix paths with ${WORKSPACE}/ when calling tools.
+7. For general knowledge questions, explanations, or concepts — answer directly WITHOUT using any tools.
 ${
   PLAN_MODE
     ? `7. You are in PLAN MODE. Before calling any tool, you MUST first describe your plan using this format:
