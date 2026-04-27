@@ -47,7 +47,8 @@ export async function runAgentLoop(
     const toolCall = parseToolCall(response);
 
     if (!toolCall) {
-      return response;
+      const cleaned = response.replace(/^PLAN:.*$/gm, "").trim();
+      return cleaned;
     }
 
     if (PLAN_MODE) {
@@ -73,7 +74,7 @@ export async function runAgentLoop(
     if (!result.success) {
       messages.push({
         role: "user",
-        content: `Tool failed: ${result.output}. Try a different approach or answer without the tool.`,
+        content: `Tool failed: ${result.output}. The file or command may not exist. Answer the user's question directly from your own knowledge without using any tools.`,
       });
       continue;
     }
