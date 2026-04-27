@@ -1,6 +1,7 @@
 import * as readline from "readline";
 import { parseToolCall, executeTool } from "./tool-parser";
 import { getContextStats, trimMessages } from "./context-manager";
+import { confirmPlan, extractPlan } from "./planner";
 
 const OLLAMA_URL = "http://localhost:11434/api/chat";
 const MODEL = "qwen2.5-coder:3b";
@@ -9,6 +10,8 @@ interface Message {
   role: "user" | "assistant" | "system";
   content: string;
 }
+
+const PLAN_MODE = process.argv.includes("--plan");
 
 const SYSTEM_PROMPT = `You are a helpful coding assistant with access to these tools:
 
@@ -21,7 +24,15 @@ Rules:
 2. When you receive a tool result, report the EXACT content. Do NOT summarize, invent, or paraphrase file contents.
 3. Call ONLY ONE tool at a time. Wait for the result before deciding next step.
 4. Once you have enough information to answer, respond normally WITHOUT calling any more tools.
-5. Respond ONLY in this format when calling a tool:
+${
+  PLAN_MODE
+    ? `5. You are in PLAN MODE. Before calling any tool, you MUST first describe your plan using this format:
+PLAN: <describe what you are going to do and why>
+Then on the next line, make the tool call.`
+    : ""
+}
+
+Respond ONLY in this format when calling a tool:
 TOOL: tool_name | argument
 
 Examples:
@@ -48,7 +59,10 @@ async function callOllama(): Promise<string> {
   return data.message.content;
 }
 
-async function runAgentLoop(userInput: string): Promise<string> {
+async function runAgentLoop(
+  userInput: string,
+  rl: readline.Interface,
+): Promise<string> {
   messages.push({ role: "user", content: userInput });
 
   for (let i = 0; i < 5; i++) {
@@ -58,8 +72,24 @@ async function runAgentLoop(userInput: string): Promise<string> {
     const toolCall = parseToolCall(response);
 
     if (!toolCall) {
-      // No tool call — agent is done
       return response;
+    }
+
+    // Plan mode — ask for confirmation before executing
+    if (PLAN_MODE) {
+      const plan =
+        extractPlan(response) ??
+        `call ${toolCall.name} with "${toolCall.argument}"`;
+      const confirmed = await confirmPlan(plan, rl);
+
+      if (!confirmed) {
+        messages.push({
+          role: "user",
+          content:
+            "User rejected the plan. Try a different approach or answer without using tools.",
+        });
+        continue;
+      }
     }
 
     console.log(`\n[Tool: ${toolCall.name} | ${toolCall.argument}]`);
@@ -67,7 +97,6 @@ async function runAgentLoop(userInput: string): Promise<string> {
     console.log(`[Result: ${result.success ? "success" : "failed"}]\n`);
 
     if (!result.success) {
-      // Tell model the tool failed and let it try once more
       messages.push({
         role: "user",
         content: `Tool failed: ${result.output}. Try a different approach or answer without the tool.`,
@@ -75,7 +104,6 @@ async function runAgentLoop(userInput: string): Promise<string> {
       continue;
     }
 
-    // Tool succeeded — force model to answer NOW with the result
     messages.push({
       role: "user",
       content: `Tool result:\n${result.output}\n\nNow answer the user's original question using ONLY this result. Do not call any more tools.`,
@@ -109,7 +137,7 @@ async function main() {
       }
 
       try {
-        const response = await runAgentLoop(userInput);
+        const response = await runAgentLoop(userInput, rl);
         console.log(`\nAgent: ${response}`);
         console.log(getContextStats(messages) + "\n");
       } catch (error) {
