@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
+import { WORKSPACE } from "./constants";
 
 export interface ToolResult {
   success: boolean;
@@ -10,7 +11,10 @@ export interface ToolResult {
 export const tools = {
   read_file: (filePath: string): ToolResult => {
     try {
-      const content = fs.readFileSync(path.resolve(filePath), "utf-8");
+      const resolved = path.isAbsolute(filePath)
+        ? filePath
+        : path.resolve(WORKSPACE, filePath);
+      const content = fs.readFileSync(resolved, "utf-8");
       return { success: true, output: content };
     } catch (error) {
       return { success: false, output: `Error reading file: ${error}` };
@@ -19,9 +23,10 @@ export const tools = {
 
   list_directory: (dirPath: string): ToolResult => {
     try {
-      const entries = fs.readdirSync(path.resolve(dirPath), {
-        withFileTypes: true,
-      });
+      const resolved = path.isAbsolute(dirPath)
+        ? dirPath
+        : path.resolve(WORKSPACE, dirPath);
+      const entries = fs.readdirSync(resolved, { withFileTypes: true });
       const output = entries
         .map((e) => `${e.isDirectory() ? "[dir]" : "[file]"} ${e.name}`)
         .join("\n");
