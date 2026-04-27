@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "tsx src/index.ts",
+    "dev": "tsx src/main.ts",
     "build": "tsc"
   },
   "keywords": [],
