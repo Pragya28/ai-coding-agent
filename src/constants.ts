@@ -41,4 +41,6 @@ TOOL: tool_name | argument
 Examples:
 TOOL: read_file | package.json
 TOOL: list_directory | src
-TOOL: run_shell | node index.js`;
+TOOL: run_shell | node index.js
+TOOL: write_file | src/hello.ts | console.log("hello world");
+TOOL: search_files | closure | 03-Domains/JavaScript`;

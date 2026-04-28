@@ -1,15 +1,17 @@
-import { tools, ToolName, ToolResult } from "./tools";
+import { ToolName, ToolResult, tools } from "./tools/index";
 
 export interface ToolCall {
   name: ToolName;
   argument: string;
+  secondArgument?: string;
 }
 
-// Model will respond in this format when it wants to call a tool:
+// Tool call formats:
 // TOOL: tool_name | argument
+// TOOL: write_file | path/to/file | content here
 
 export function parseToolCall(response: string): ToolCall | null {
-  const match = response.match(/TOOL:\s*(\w+)\s*\|\s*(.+)/);
+  const match = response.match(/TOOL:\s*(\w+)\s*\|\s*(.+)/s);
   if (!match) return null;
 
   const name = match[1] as ToolName;
@@ -18,9 +20,20 @@ export function parseToolCall(response: string): ToolCall | null {
     return null;
   }
 
-  return { name, argument: match[2].trim() };
+  // Split remaining by first | to get argument and optional second argument
+  const parts = match[2].split(/\|(.+)/s);
+  const argument = parts[0].trim();
+  const secondArgument = parts[1]?.trim();
+
+  return { name, argument, secondArgument };
 }
 
 export function executeTool(toolCall: ToolCall): ToolResult {
-  return tools[toolCall.name](toolCall.argument);
+  if (toolCall.secondArgument !== undefined) {
+    return (tools[toolCall.name] as (a: string, b: string) => ToolResult)(
+      toolCall.argument,
+      toolCall.secondArgument,
+    );
+  }
+  return (tools[toolCall.name] as (a: string) => ToolResult)(toolCall.argument);
 }
