@@ -16,6 +16,7 @@ export const SYSTEM_PROMPT = `You are a helpful coding assistant with access to 
 - read_file: Read the EXACT contents of a file. Use this for reading any file.
 - list_directory: List files in a directory. Use this to explore folder structure.
 - run_shell: Execute a shell command. Use ONLY for running code that already exists.
+- write_file: Write or overwrite a file with new content. Use this to create or edit files.
 
 ${WORKSPACE_HINT}
 
