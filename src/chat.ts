@@ -9,6 +9,8 @@ import {
 import { parseToolCall, executeTool } from "./tool-parser";
 import { trimMessages, getContextStats } from "./context-manager";
 import { confirmPlan, extractPlan } from "./planner";
+import { routeTask } from "./router";
+import { selectModel } from "./model-selector";
 
 export interface Message {
   role: "user" | "assistant" | "system";
@@ -17,14 +19,14 @@ export interface Message {
 
 export const messages: Message[] = [{ role: "system", content: SYSTEM_PROMPT }];
 
-async function callOllama(): Promise<string> {
+async function callOllama(model: string): Promise<string> {
   const trimmed = trimMessages(messages);
 
   const response = await fetch(OLLAMA_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: MODEL,
+      model,
       messages: trimmed,
       stream: false,
     }),
@@ -38,10 +40,14 @@ export async function runAgentLoop(
   userInput: string,
   rl: readline.Interface,
 ): Promise<string> {
+  const taskType = await routeTask(userInput);
+  const model = selectModel(taskType);
+  console.log(`\n[Router: ${taskType} → ${model}]`);
+
   messages.push({ role: "user", content: userInput });
 
   for (let i = 0; i < MAX_ITERATIONS; i++) {
-    const response = await callOllama();
+    const response = await callOllama(model);
     messages.push({ role: "assistant", content: response });
 
     const toolCall = parseToolCall(response);

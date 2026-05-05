@@ -6,7 +6,8 @@ function printSessionInfo() {
   console.log("─────────────────────────────────────────");
   console.log("  AI Coding Agent");
   console.log("─────────────────────────────────────────");
-  console.log(`  Model     : ${MODEL}`);
+  console.log(`  Router    : lfm2.5-thinking:1.2b`);
+  console.log(`  Models    : qwen2.5-coder:3b / qwen2.5-coder:7b`);
   console.log(`  Workspace : ${WORKSPACE}`);
   console.log(`  Plan Mode : ${PLAN_MODE ? "on" : "off"}`);
   console.log("─────────────────────────────────────────");
