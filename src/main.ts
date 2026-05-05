@@ -1,5 +1,17 @@
 import * as readline from "readline";
 import { runAgentLoop, messages, getContextStats } from "./chat";
+import { WORKSPACE, MODEL, PLAN_MODE } from "./constants";
+
+function printSessionInfo() {
+  console.log("─────────────────────────────────────────");
+  console.log("  AI Coding Agent");
+  console.log("─────────────────────────────────────────");
+  console.log(`  Model     : ${MODEL}`);
+  console.log(`  Workspace : ${WORKSPACE}`);
+  console.log(`  Plan Mode : ${PLAN_MODE ? "on" : "off"}`);
+  console.log("─────────────────────────────────────────");
+  console.log('  Type "exit" to quit\n');
+}
 
 async function main() {
   const rl = readline.createInterface({
@@ -7,7 +19,7 @@ async function main() {
     output: process.stdout,
   });
 
-  console.log('AI Coding Agent ready. Type "exit" to quit.\n');
+  printSessionInfo();
 
   const askQuestion = () => {
     rl.question("You: ", async (input) => {
