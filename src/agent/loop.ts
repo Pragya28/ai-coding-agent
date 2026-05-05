@@ -1,46 +1,10 @@
 import * as readline from "readline";
-import {
-  OLLAMA_URL,
-  MODEL,
-  SYSTEM_PROMPT,
-  PLAN_MODE,
-  MAX_ITERATIONS,
-} from "./constants";
-import { parseToolCall, executeTool } from "./tool-parser";
-import { trimMessages, getContextStats } from "./context-manager";
-import { confirmPlan, extractPlan } from "./planner";
+import { MAX_ITERATIONS, PLAN_MODE } from "../constants";
+import { callOllama, messages } from "./chat";
 import { routeTask } from "./router";
 import { selectModel } from "./model-selector";
-import { startSpinner } from "./spinner";
-
-export interface Message {
-  role: "user" | "assistant" | "system";
-  content: string;
-}
-
-export const messages: Message[] = [{ role: "system", content: SYSTEM_PROMPT }];
-
-async function callOllama(model: string): Promise<string> {
-  const trimmed = trimMessages(messages);
-  const stop = startSpinner(`Thinking with ${model}`);
-
-  try {
-    const response = await fetch(OLLAMA_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model,
-        messages: trimmed,
-        stream: false,
-      }),
-    });
-
-    const data = await response.json();
-    return data.message.content;
-  } finally {
-    stop();
-  }
-}
+import { executeTool, parseToolCall } from "../utils/tool-parser";
+import { confirmPlan, extractPlan } from "./planner";
 
 export async function runAgentLoop(
   userInput: string,
@@ -99,5 +63,3 @@ export async function runAgentLoop(
 
   return "Max iterations reached.";
 }
-
-export { getContextStats };

@@ -1,6 +1,8 @@
 import * as readline from "readline";
-import { runAgentLoop, messages, getContextStats } from "./chat";
-import { WORKSPACE, MODEL, PLAN_MODE } from "./constants";
+import { WORKSPACE, PLAN_MODE } from "./constants";
+import { runAgentLoop } from "./agent/loop";
+import { getContextStats } from "./utils/context-manager";
+import { messages } from "./agent/chat";
 
 function printSessionInfo() {
   console.log("─────────────────────────────────────────");

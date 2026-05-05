@@ -1,5 +1,5 @@
-import { OLLAMA_URL } from "./constants";
-import { startSpinner } from "./spinner";
+import { OLLAMA_URL } from "../constants";
+import { startSpinner } from "../utils/spinner";
 
 export type TaskType =
   | "file_operation"

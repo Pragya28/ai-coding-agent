@@ -1,4 +1,4 @@
-import { ToolName, ToolResult, tools } from "./tools";
+import { ToolName, ToolResult, tools } from "../tools";
 
 export interface ToolCall {
   name: ToolName;
