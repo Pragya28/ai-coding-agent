@@ -1,4 +1,5 @@
 import { OLLAMA_URL } from "./constants";
+import { startSpinner } from "./spinner";
 
 export type TaskType =
   | "file_operation"
@@ -9,6 +10,7 @@ export type TaskType =
   | "general";
 
 export async function routeTask(userMessage: string): Promise<TaskType> {
+  const stop = startSpinner("Routing");
   try {
     const response = await fetch(OLLAMA_URL, {
       method: "POST",
@@ -52,5 +54,7 @@ Respond with ONLY the category name, nothing else. No explanation, no punctuatio
   } catch {
     // Fallback if router model fails
     return "general";
+  } finally {
+    stop();
   }
 }

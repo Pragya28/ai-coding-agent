@@ -11,6 +11,7 @@ import { trimMessages, getContextStats } from "./context-manager";
 import { confirmPlan, extractPlan } from "./planner";
 import { routeTask } from "./router";
 import { selectModel } from "./model-selector";
+import { startSpinner } from "./spinner";
 
 export interface Message {
   role: "user" | "assistant" | "system";
@@ -21,19 +22,24 @@ export const messages: Message[] = [{ role: "system", content: SYSTEM_PROMPT }];
 
 async function callOllama(model: string): Promise<string> {
   const trimmed = trimMessages(messages);
+  const stop = startSpinner(`Thinking with ${model}`);
 
-  const response = await fetch(OLLAMA_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model,
-      messages: trimmed,
-      stream: false,
-    }),
-  });
+  try {
+    const response = await fetch(OLLAMA_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        messages: trimmed,
+        stream: false,
+      }),
+    });
 
-  const data = await response.json();
-  return data.message.content;
+    const data = await response.json();
+    return data.message.content;
+  } finally {
+    stop();
+  }
 }
 
 export async function runAgentLoop(
