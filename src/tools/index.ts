@@ -7,11 +7,11 @@ import { runShell } from "./run-shell";
 export { ToolResult } from "./types";
 
 export const tools = {
-  read_file: readFile,
-  write_file: writeFile,
-  list_directory: listDirectory,
-  search_files: searchFiles,
-  run_shell: runShell,
+  read_file: (arg: string) => readFile(arg),
+  write_file: (arg: string, content: string) => writeFile(arg, content),
+  list_directory: (arg: string) => listDirectory(arg),
+  search_files: (arg: string, dir?: string) => searchFiles(arg, dir),
+  run_shell: (arg: string) => runShell(arg),
 };
 
 export type ToolName = keyof typeof tools;

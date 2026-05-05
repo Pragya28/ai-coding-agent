@@ -17,6 +17,7 @@ export const SYSTEM_PROMPT = `You are a helpful coding assistant with access to 
 - list_directory: List files in a directory. Use this to explore folder structure.
 - run_shell: Execute a shell command. Use ONLY for running code that already exists.
 - write_file: Write or overwrite a file with new content. Use this to create or edit files.
+- search_files: Search for a pattern across files in a directory. Searches file contents.
 
 ${WORKSPACE_HINT}
 
@@ -44,4 +45,5 @@ TOOL: read_file | package.json
 TOOL: list_directory | src
 TOOL: run_shell | node index.js
 TOOL: write_file | src/hello.ts | console.log("hello world");
-TOOL: search_files | closure | 03-Domains/JavaScript`;
+TOOL: search_files | closure | 03-Domains/JavaScript
+TOOL: search_files | async | 03-Domains`;
