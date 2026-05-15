@@ -3,6 +3,7 @@ import { WORKSPACE, PLAN_MODE } from "./constants";
 import { runAgentLoop } from "./agent/loop";
 import { getContextStats } from "./utils/context-manager";
 import { messages } from "./agent/chat";
+import { Logger } from "./utils/logger";
 
 function printSessionInfo() {
   console.log("─────────────────────────────────────────");
@@ -17,12 +18,16 @@ function printSessionInfo() {
 }
 
 async function main() {
+  const logger = new Logger();
+
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
   printSessionInfo();
+  console.log(`  Log       : ${logger.getFilePath()}\n`);
+  console.log("─────────────────────────────────────────\n");
 
   const askQuestion = () => {
     rl.question("You: ", async (input) => {
@@ -40,9 +45,12 @@ async function main() {
       }
 
       try {
-        const response = await runAgentLoop(userInput, rl);
+        logger.logUser(userInput);
+        const response = await runAgentLoop(userInput, rl, logger);
         console.log(`\nAgent: ${response}`);
-        console.log(getContextStats(messages) + "\n");
+        const stats = getContextStats(messages);
+        console.log(stats + "\n");
+        logger.logContextStats(stats);
       } catch (error) {
         console.error("Error:", error);
       }

@@ -5,14 +5,17 @@ import { routeTask } from "./router";
 import { selectModel } from "./model-selector";
 import { executeTool, parseToolCall } from "../utils/tool-parser";
 import { confirmPlan, extractPlan } from "./planner";
+import { Logger } from "../utils/logger";
 
 export async function runAgentLoop(
   userInput: string,
   rl: readline.Interface,
+  logger: Logger,
 ): Promise<string> {
   const taskType = await routeTask(userInput);
   const model = selectModel(taskType);
   console.log(`\n[Router: ${taskType} → ${model}]`);
+  logger.logRouter(taskType, model);
 
   messages.push({ role: "user", content: userInput });
 
@@ -24,6 +27,7 @@ export async function runAgentLoop(
 
     if (!toolCall) {
       const cleaned = response.replace(/^PLAN:.*$/gm, "").trim();
+      logger.logAgent(cleaned);
       return cleaned;
     }
 
@@ -46,6 +50,12 @@ export async function runAgentLoop(
     console.log(`\n[Tool: ${toolCall.name} | ${toolCall.argument}]`);
     const result = executeTool(toolCall);
     console.log(`[Result: ${result.success ? "success" : "failed"}]\n`);
+    logger.logTool(
+      toolCall.name,
+      toolCall.argument,
+      result.success,
+      result.output,
+    );
 
     if (!result.success) {
       messages.push({
