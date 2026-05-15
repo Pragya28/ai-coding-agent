@@ -10,6 +10,24 @@ export type TaskType =
   | "general";
 
 export async function routeTask(userMessage: string): Promise<TaskType> {
+  const lower = userMessage.toLowerCase();
+
+  // Keyword overrides before hitting the model
+  if (
+    ["read ", "open ", "show me the file", "my note", "my document"].some((k) =>
+      lower.includes(k),
+    )
+  ) {
+    return "file_operation";
+  }
+  if (
+    ["search for", "find all", "which notes", "grep"].some((k) =>
+      lower.includes(k),
+    )
+  ) {
+    return "search";
+  }
+
   const stop = startSpinner("Routing");
   try {
     const response = await fetch(OLLAMA_URL, {
