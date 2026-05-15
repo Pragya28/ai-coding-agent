@@ -1,4 +1,5 @@
 import { OLLAMA_URL } from "../constants";
+import { ROUTER_PROMPT } from "../prompts/router";
 import { startSpinner } from "../utils/spinner";
 
 export type TaskType =
@@ -36,18 +37,7 @@ export async function routeTask(userMessage: string): Promise<TaskType> {
       body: JSON.stringify({
         model: "lfm2.5-thinking:1.2b",
         messages: [
-          {
-            role: "system",
-            content: `You are a task classifier. Classify the user message into exactly one of these categories:
-- file_operation: reading, listing, writing, or creating files
-- code_generation: writing, editing, generating, or fixing code
-- explanation: explaining concepts, summarizing, answering questions
-- shell_command: running terminal commands
-- search: searching for patterns or keywords across files
-- general: anything else
-
-Respond with ONLY the category name, nothing else. No explanation, no punctuation.`,
-          },
+          { role: "system", content: ROUTER_PROMPT },
           { role: "user", content: userMessage },
         ],
         stream: false,
