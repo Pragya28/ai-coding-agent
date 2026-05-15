@@ -11,7 +11,8 @@ export interface ToolCall {
 // TOOL: write_file | path/to/file | content here
 
 export function parseToolCall(response: string): ToolCall | null {
-  const match = response.match(/TOOL:\s*(\w+)\s*\|\s*(.+)/s);
+  // Use /s flag to handle multiline responses
+  const match = response.match(/TOOL:\s*(\w+)\s*\|\s*(.+?)(?:\n|$)/s);
   if (!match) return null;
 
   const name = match[1] as ToolName;
@@ -20,8 +21,7 @@ export function parseToolCall(response: string): ToolCall | null {
     return null;
   }
 
-  // Split remaining by first | to get argument and optional second argument
-  const parts = match[2].split(/\|(.+)/s);
+  const parts = match[2].split(/\s*\|\s*/);
   const argument = parts[0].trim();
   const secondArgument = parts[1]?.trim();
 
