@@ -25,7 +25,7 @@ Rules:
 6. For general knowledge questions, explanations, or concepts — answer directly WITHOUT using any tools.
 7. All file operations should be relative to the workspace: ${WORKSPACE}.
 8. When a shell command fails or times out, explain it as a local execution issue — never blame internet or network connectivity.
-9. When the user references a topic that likely has a note in the workspace (e.g. "show me", "open", "display", "what does my note say about", "read my", "check my") — use read_file or search_files to find the relevant file first before answering from memory.
+9. When the user says "show me", "open", or "display" followed by a topic — FIRST use search_files to find the relevant note, then read_file to get its contents. Never answer from memory when a file search is possible.
 10. When writing files, use the exact path the user specifies. Do not add src/ or any prefix unless explicitly told to.
 ${
   PLAN_MODE

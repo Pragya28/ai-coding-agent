@@ -15,7 +15,7 @@ export async function routeTask(userMessage: string): Promise<TaskType> {
 
   // Keyword overrides before hitting the model
   if (
-    ["read ", "open ", "show me the file", "my note", "my document"].some((k) =>
+    ["read ", "open ", "show me", "my note", "my document"].some((k) =>
       lower.includes(k),
     )
   ) {

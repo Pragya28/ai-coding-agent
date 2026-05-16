@@ -54,7 +54,8 @@ export async function runAgentLoop(
     console.log(`[Result: ${result.success ? "success" : "failed"}]\n`);
     logger.logTool(
       toolCall.name,
-      `${toolCall.argument}${toolCall.secondArgument ? ` | ${toolCall.secondArgument}` : ""}`,
+      toolCall.argument,
+      toolCall.secondArgument,
       result.success,
       result.output,
     );

@@ -40,10 +40,17 @@ export class Logger {
     this.write(`\n> 🔀 Router: **${taskType}** → \`${model}\`\n`);
   }
 
-  logTool(name: string, argument: string, success: boolean, output: string) {
+  logTool(
+    name: string,
+    argument: string,
+    secondArgument: string | undefined,
+    success: boolean,
+    output: string,
+  ) {
+    const args = secondArgument ? `${argument} | ${secondArgument}` : argument;
     const status = success ? "✅" : "❌";
     this.write(
-      `\n> ${status} Tool: \`${name}\` | \`${argument}\`\n> Result: ${success ? "success" : "failed"}\n\`\`\`\n${output.slice(0, 500)}${output.length > 500 ? "\n...(truncated)" : ""}\n\`\`\`\n`,
+      `\n> ${status} Tool: \`${name}\` | \`${args}\`\n> Result: ${success ? "success" : "failed"}\n\`\`\`\n${output.slice(0, 500)}${output.length > 500 ? "\n...(truncated)" : ""}\n\`\`\`\n`,
     );
   }
 
