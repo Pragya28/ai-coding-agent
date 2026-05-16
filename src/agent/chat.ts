@@ -1,6 +1,6 @@
 import { OLLAMA_URL } from "../constants";
 import { SYSTEM_PROMPT } from "../prompts/system";
-import { trimMessages } from "../utils/context-manager";
+import { trimMessages } from "../utils/context-manager/context-manager";
 import { Logger } from "../utils/logger";
 import { startSpinner } from "../utils/spinner";
 

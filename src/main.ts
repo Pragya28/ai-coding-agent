@@ -1,7 +1,7 @@
 import * as readline from "readline";
 import { WORKSPACE, PLAN_MODE } from "./constants";
 import { runAgentLoop } from "./agent/loop";
-import { getContextStats } from "./utils/context-manager";
+import { getContextStats } from "./utils/context-manager/context-manager";
 import { messages } from "./agent/chat";
 import { Logger } from "./utils/logger";
 
