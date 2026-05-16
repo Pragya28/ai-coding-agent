@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseToolCall } from "./tool-parser";
+import { parseToolCall, executeTool } from "./tool-parser";
 
 describe("parseToolCall", () => {
   describe("valid tool calls", () => {
@@ -99,5 +99,31 @@ describe("parseToolCall", () => {
       );
       expect(result).toBeNull();
     });
+  });
+});
+
+describe("executeTool", () => {
+  it("calls single argument tool correctly", () => {
+    const result = executeTool({ name: "list_directory", argument: "." });
+    expect(result.success).toBeDefined();
+  });
+
+  it("calls double argument tool correctly", () => {
+    const result = executeTool({
+      name: "search_files",
+      argument: "zzznomatch",
+      secondArgument: ".",
+    });
+    expect(result.success).toBe(true);
+    expect(result.output).toContain("No matches found");
+  });
+
+  it("passes secondArgument to write_file", () => {
+    const result = executeTool({
+      name: "write_file",
+      argument: "/tmp/agent-executor-test.md",
+      secondArgument: "executor test content",
+    });
+    expect(result.success).toBe(true);
   });
 });
