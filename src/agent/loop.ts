@@ -3,7 +3,7 @@ import { MAX_ITERATIONS, PLAN_MODE } from "../constants";
 import { callOllama, messages } from "./chat";
 import { routeTask } from "./router";
 import { selectModel } from "./model-selector";
-import { executeTool, parseToolCall } from "../utils/tool-parser";
+import { executeTool, parseToolCall } from "../utils/tool-parser/tool-parser";
 import { confirmPlan, extractPlan } from "./planner";
 import { Logger } from "../utils/logger";
 
