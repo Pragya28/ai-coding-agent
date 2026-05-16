@@ -11,7 +11,7 @@ export interface ToolCall {
 // TOOL: write_file | path/to/file | content here
 
 export function parseToolCall(response: string): ToolCall | null {
-  const match = response.match(/TOOL:\s*(\w+)\s*\|\s*(.+?)(?:\n|$)/s);
+  const match = response.match(/TOOL:\s*(\w+)\s*\|\s*(.+)/s);
   if (!match) return null;
 
   const name = match[1] as ToolName;
@@ -20,15 +20,17 @@ export function parseToolCall(response: string): ToolCall | null {
     return null;
   }
 
-  // Split on first | only for write_file (content may contain |)
-  // Split on all | for other tools
-  const raw = match[2].trim();
+  // Grab everything after TOOL: name | and trim trailing whitespace/newlines
+  const raw = match[2]
+    .trim()
+    .replace(/\n[\s\S]*$/, "")
+    .trim();
 
   let argument: string;
   let secondArgument: string | undefined;
 
   if (name === "write_file") {
-    // For write_file: split on FIRST pipe only — content may contain pipes
+    // split on FIRST pipe only — content may contain pipes
     const pipeIndex = raw.indexOf("|");
     if (pipeIndex === -1) {
       argument = raw;
@@ -37,7 +39,7 @@ export function parseToolCall(response: string): ToolCall | null {
       secondArgument = raw.slice(pipeIndex + 1).trim();
     }
   } else {
-    // For all other tools: split on pipe normally
+    // split normally for all other tools
     const parts = raw.split(/\s*\|\s*/);
     argument = parts[0].trim();
     secondArgument = parts[1]?.trim();

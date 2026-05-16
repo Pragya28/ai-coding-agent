@@ -47,16 +47,17 @@ export async function runAgentLoop(
       }
     }
 
-    console.log(`\n[Tool: ${toolCall.name} | ${toolCall.argument}]`);
+    console.log(
+      `\n[Tool: ${toolCall.name} | ${toolCall.argument}${toolCall.secondArgument ? ` | ${toolCall.secondArgument}` : ""}]`,
+    );
     const result = executeTool(toolCall);
     console.log(`[Result: ${result.success ? "success" : "failed"}]\n`);
     logger.logTool(
       toolCall.name,
-      toolCall.argument,
+      `${toolCall.argument}${toolCall.secondArgument ? ` | ${toolCall.secondArgument}` : ""}`,
       result.success,
       result.output,
     );
-
     if (!result.success) {
       messages.push({
         role: "user",

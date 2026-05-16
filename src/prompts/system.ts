@@ -26,9 +26,10 @@ Rules:
 7. All file operations should be relative to the workspace: ${WORKSPACE}.
 8. When a shell command fails or times out, explain it as a local execution issue — never blame internet or network connectivity.
 9. When the user references a topic that likely has a note in the workspace (e.g. "show me", "open", "display", "what does my note say about", "read my", "check my") — use read_file or search_files to find the relevant file first before answering from memory.
+10. When writing files, use the exact path the user specifies. Do not add src/ or any prefix unless explicitly told to.
 ${
   PLAN_MODE
-    ? `10. You are in PLAN MODE. Before calling any tool, you MUST first describe your plan using this format:
+    ? `11. You are in PLAN MODE. Before calling any tool, you MUST first describe your plan using this format:
 PLAN: <describe what you are going to do and why>
 Then on the next line, make the tool call.`
     : ""

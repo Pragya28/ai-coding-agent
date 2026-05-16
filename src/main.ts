@@ -29,20 +29,26 @@ async function main() {
   console.log(`  Log       : ${logger.getFilePath()}\n`);
   console.log("─────────────────────────────────────────\n");
 
+  let sessionEnded = false;
+
+  rl.on("close", () => {
+    if (!sessionEnded) {
+      sessionEnded = true;
+      logger.logSessionEnd();
+    }
+  });
+
   const askQuestion = () => {
     rl.question("You: ", async (input) => {
       const userInput = input.trim();
 
       if (userInput === "exit") {
+        sessionEnded = true;
         logger.logSessionEnd();
         console.log("Goodbye!");
         rl.close();
         return;
       }
-
-      rl.on("close", () => {
-        logger.logSessionEnd();
-      });
 
       if (!userInput) {
         askQuestion();
