@@ -6,7 +6,10 @@
     "dev": "tsx src/main.ts",
     "dev:plan": "tsx src/main.ts -- --plan",
     "serve": "OLLAMA_MAX_LOADED_MODELS=2 ollama serve",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [],
   "author": "",
@@ -14,8 +17,10 @@
   "packageManager": "pnpm@10.30.2",
   "devDependencies": {
     "@types/node": "^25.6.0",
+    "@vitest/coverage-v8": "^4.1.6",
     "tsx": "^4.21.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
   },
   "dependencies": {
     "dotenv": "^17.4.2"
