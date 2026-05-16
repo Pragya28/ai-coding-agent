@@ -23,11 +23,24 @@ function walkFiles(dir: string): string[] {
 
 export function searchFiles(pattern: string, searchDir?: string): ToolResult {
   try {
-    const baseDir = searchDir
-      ? path.isAbsolute(searchDir)
+    let baseDir: string;
+    if (searchDir) {
+      const resolved = path.isAbsolute(searchDir)
         ? searchDir
-        : path.resolve(WORKSPACE, searchDir)
-      : WORKSPACE;
+        : path.resolve(WORKSPACE, searchDir);
+
+      // If directory doesn't exist, fall back to workspace root
+      if (!fs.existsSync(resolved)) {
+        console.log(
+          `[search_files: directory not found, falling back to workspace root]`,
+        );
+        baseDir = WORKSPACE;
+      } else {
+        baseDir = resolved;
+      }
+    } else {
+      baseDir = WORKSPACE;
+    }
 
     const allFiles = walkFiles(baseDir);
     const matches: string[] = [];

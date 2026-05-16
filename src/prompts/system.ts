@@ -25,7 +25,7 @@ Rules:
 6. For general knowledge questions, explanations, or concepts — answer directly WITHOUT using any tools.
 7. All file operations should be relative to the workspace: ${WORKSPACE}.
 8. When a shell command fails or times out, explain it as a local execution issue — never blame internet or network connectivity.
-9. When the user says "show me", "open", or "display" followed by a topic — FIRST use search_files to find the relevant note, then read_file to get its contents. Never answer from memory when a file search is possible.
+9. When the user says "show me", "open", or "display" followed by a topic — FIRST use search_files to find the relevant note in 03-Domains, then read_file to get its contents. Always read the file — never answer from memory.
 10. When writing files, use the exact path the user specifies. Do not add src/ or any prefix unless explicitly told to.
 ${
   PLAN_MODE
@@ -43,7 +43,7 @@ TOOL: read_file | package.json
 TOOL: list_directory | src
 TOOL: run_shell | node index.js
 TOOL: write_file | src/hello.ts | console.log("hello world");
-TOOL: search_files | closure | 03-Domains/JavaScript
+TOOL: search_files | hooks | 03-Domains
 TOOL: search_files | async | 03-Domains
 TOOL: read_file | 03-Domains/JavaScript/07-Event Loop.md
 `;

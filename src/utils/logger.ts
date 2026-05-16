@@ -49,8 +49,12 @@ export class Logger {
   ) {
     const args = secondArgument ? `${argument} | ${secondArgument}` : argument;
     const status = success ? "✅" : "❌";
+
+    // Use higher limit for search results
+    const limit = name === "search_files" ? 2000 : 500;
+
     this.write(
-      `\n> ${status} Tool: \`${name}\` | \`${args}\`\n> Result: ${success ? "success" : "failed"}\n\`\`\`\n${output.slice(0, 500)}${output.length > 500 ? "\n...(truncated)" : ""}\n\`\`\`\n`,
+      `\n> ${status} Tool: \`${name}\` | \`${args}\`\n> Result: ${success ? "success" : "failed"}\n\`\`\`\n${output.slice(0, limit)}${output.length > limit ? "\n...(truncated)" : ""}\n\`\`\`\n`,
     );
   }
 

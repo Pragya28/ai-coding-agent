@@ -26,7 +26,10 @@ export async function runAgentLoop(
     const toolCall = parseToolCall(response);
 
     if (!toolCall) {
-      const cleaned = response.replace(/^PLAN:.*$/gm, "").trim();
+      const cleaned = response
+        .replace(/^PLAN:.*$/gm, "")
+        .replace(/Now show the user the EXACT contents.*$/s, "")
+        .trim();
       logger.logAgent(cleaned);
       return cleaned;
     }
@@ -59,18 +62,27 @@ export async function runAgentLoop(
       result.success,
       result.output,
     );
+
     if (!result.success) {
       messages.push({
         role: "user",
-        content: `Tool failed: ${result.output}. The file or command may not exist. Answer the user's question directly from your own knowledge without using any tools.`,
+        content: `Tool failed: ${result.output}. Answer directly from knowledge.`,
       });
       continue;
     }
 
-    messages.push({
-      role: "user",
-      content: `Tool result:\n${result.output}\n\nNow answer the user's original question using ONLY this result. Do not call any more tools.`,
-    });
+    // Allow multi-step: if search succeeded, let model decide next step
+    if (toolCall.name === "search_files") {
+      messages.push({
+        role: "user",
+        content: `Tool result:\n${result.output}\n\nLook at the file paths listed above. Pick the most relevant file path EXACTLY as shown and call read_file with that exact path. Do not guess or invent a filename.`,
+      });
+    } else {
+      messages.push({
+        role: "user",
+        content: `Tool result:\n${result.output}\n\nNow show the user the EXACT contents from this result. Do not summarize or just report the file path — display the actual content.`,
+      });
+    }
   }
 
   // At the end of the loop
