@@ -1,7 +1,7 @@
 import { readFile } from "./read-file/read-file";
 import { writeFile } from "./write-file/write-file";
 import { listDirectory } from "./list-directory";
-import { searchFiles } from "./search-files";
+import { searchFiles } from "./search-files/search-files";
 import { runShell } from "./run-shell";
 
 export { ToolResult } from "./types";
