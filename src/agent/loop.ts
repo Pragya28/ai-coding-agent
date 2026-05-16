@@ -20,7 +20,7 @@ export async function runAgentLoop(
   messages.push({ role: "user", content: userInput });
 
   for (let i = 0; i < MAX_ITERATIONS; i++) {
-    const response = await callOllama(model);
+    const response = await callOllama(model, logger);
     messages.push({ role: "assistant", content: response });
 
     const toolCall = parseToolCall(response);
@@ -71,5 +71,15 @@ export async function runAgentLoop(
     });
   }
 
-  return "Max iterations reached.";
+  // At the end of the loop
+  const lastToolCall = messages
+    .filter((m) => m.role === "user" && m.content.startsWith("Tool result:"))
+    .at(-1);
+
+  const summary = lastToolCall
+    ? `Reached max iterations. Last completed step:\n${lastToolCall.content.slice(0, 300)}...`
+    : "Reached max iterations without completing the task. Please try rephrasing your request.";
+
+  logger.logSystem("Max iterations reached");
+  return summary;
 }

@@ -55,6 +55,14 @@ export class Logger {
     this.write(`\n> ${stats}\n`);
   }
 
+  logSystem(message: string) {
+    this.write(`\n> ⚙️ System: ${message}\n`);
+  }
+
+  logSessionEnd() {
+    this.write(`\n---\n\n**Session ended:** ${new Date().toLocaleString()}\n`);
+  }
+
   getFilePath(): string {
     return this.filePath;
   }

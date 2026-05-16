@@ -34,10 +34,15 @@ async function main() {
       const userInput = input.trim();
 
       if (userInput === "exit") {
+        logger.logSessionEnd();
         console.log("Goodbye!");
         rl.close();
         return;
       }
+
+      rl.on("close", () => {
+        logger.logSessionEnd();
+      });
 
       if (!userInput) {
         askQuestion();

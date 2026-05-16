@@ -5,21 +5,25 @@ interface Message {
 
 const MAX_MESSAGES = 20; // max non-system messages to keep
 
-export function trimMessages(messages: Message[]): Message[] {
+export function trimMessages(messages: Message[]): {
+  trimmed: Message[];
+  trimCount: number;
+} {
   const systemMessage = messages.find((m) => m.role === "system");
   const nonSystemMessages = messages.filter((m) => m.role !== "system");
 
   if (nonSystemMessages.length <= MAX_MESSAGES) {
-    return messages;
+    return { trimmed: messages, trimCount: 0 };
   }
 
-  console.log(
-    `[Context: trimmed ${nonSystemMessages.length - MAX_MESSAGES} old messages]`,
-  );
+  const trimCount = nonSystemMessages.length - MAX_MESSAGES;
+  console.log(`[Context: trimmed ${trimCount} old messages]`);
 
-  // Always keep system message + most recent MAX_MESSAGES
   const trimmed = nonSystemMessages.slice(-MAX_MESSAGES);
-  return systemMessage ? [systemMessage, ...trimmed] : trimmed;
+  return {
+    trimmed: systemMessage ? [systemMessage, ...trimmed] : trimmed,
+    trimCount,
+  };
 }
 
 export function getContextStats(messages: Message[]): string {
