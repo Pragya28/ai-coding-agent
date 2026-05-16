@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
-import { ToolResult } from "./types";
-import { WORKSPACE } from "../constants";
+import { ToolResult } from "../types";
+import { WORKSPACE } from "../../constants";
 
 export function writeFile(filePath: string, content: string): ToolResult {
   try {
