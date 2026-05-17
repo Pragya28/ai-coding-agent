@@ -8,6 +8,7 @@ export type TaskType =
   | "explanation"
   | "shell_command"
   | "search"
+  | "git"
   | "general";
 
 export async function routeTask(userMessage: string): Promise<TaskType> {
@@ -27,6 +28,21 @@ export async function routeTask(userMessage: string): Promise<TaskType> {
     )
   ) {
     return "search";
+  }
+
+  if (
+    [
+      "git status",
+      "git diff",
+      "git log",
+      "git add",
+      "git commit",
+      "what changed",
+      "staged",
+      "commit history",
+    ].some((k) => lower.includes(k))
+  ) {
+    return "git";
   }
 
   const stop = startSpinner("Routing");

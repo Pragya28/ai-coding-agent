@@ -11,7 +11,8 @@ export interface ToolCall {
 // TOOL: write_file | path/to/file | content here
 
 export function parseToolCall(response: string): ToolCall | null {
-  const match = response.match(/TOOL:\s*(\w+)\s*\|\s*(.+)/s);
+  // Match with optional | argument
+  const match = response.match(/TOOL:\s*(\w+)(?:\s*\|\s*(.+))?/s);
   if (!match) return null;
 
   const name = match[1] as ToolName;
@@ -20,29 +21,28 @@ export function parseToolCall(response: string): ToolCall | null {
     return null;
   }
 
-  // Grab everything after TOOL: name | and trim trailing whitespace/newlines
   const raw = match[2]
-    .trim()
+    ?.trim()
     .replace(/\n[\s\S]*$/, "")
     .trim();
 
-  let argument: string;
+  let argument: string = "";
   let secondArgument: string | undefined;
 
-  if (name === "write_file") {
-    // split on FIRST pipe only — content may contain pipes
-    const pipeIndex = raw.indexOf("|");
-    if (pipeIndex === -1) {
-      argument = raw;
+  if (raw) {
+    if (name === "write_file") {
+      const pipeIndex = raw.indexOf("|");
+      if (pipeIndex === -1) {
+        argument = raw;
+      } else {
+        argument = raw.slice(0, pipeIndex).trim();
+        secondArgument = raw.slice(pipeIndex + 1).trim();
+      }
     } else {
-      argument = raw.slice(0, pipeIndex).trim();
-      secondArgument = raw.slice(pipeIndex + 1).trim();
+      const parts = raw.split(/\s*\|\s*/);
+      argument = parts[0].trim();
+      secondArgument = parts[1]?.trim();
     }
-  } else {
-    // split normally for all other tools
-    const parts = raw.split(/\s*\|\s*/);
-    argument = parts[0].trim();
-    secondArgument = parts[1]?.trim();
   }
 
   return { name, argument, secondArgument };
@@ -55,5 +55,10 @@ export function executeTool(toolCall: ToolCall): ToolResult {
       toolCall.secondArgument,
     );
   }
-  return (tools[toolCall.name] as (a: string) => ToolResult)(toolCall.argument);
+  if (toolCall.argument !== "") {
+    return (tools[toolCall.name] as (a: string) => ToolResult)(
+      toolCall.argument,
+    );
+  }
+  return (tools[toolCall.name] as () => ToolResult)();
 }

@@ -7,6 +7,7 @@ const MODEL_MAP: Record<TaskType, string> = {
   general: "qwen2.5-coder:3b",
   explanation: "qwen2.5-coder:3b",
   code_generation: "qwen2.5-coder:3b",
+  git: "qwen2.5-coder:3b",
 };
 
 export function selectModel(task: TaskType): string {

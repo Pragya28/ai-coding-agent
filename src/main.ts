@@ -13,6 +13,7 @@ function printSessionInfo() {
   console.log(`  Models    : qwen2.5-coder:3b (local)`);
   console.log(`  Workspace : ${WORKSPACE}`);
   console.log(`  Plan Mode : ${PLAN_MODE ? "on" : "off"}`);
+  console.log(`  Tools     : fs · shell · git`);
   console.log("─────────────────────────────────────────");
   console.log('  Type "exit" to quit\n');
 }
