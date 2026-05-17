@@ -11,26 +11,18 @@ export type TaskType =
   | "git"
   | "general";
 
-export async function routeTask(userMessage: string): Promise<TaskType> {
-  const lower = userMessage.toLowerCase();
-
-  if (
-    ["read ", "open ", "show me", "my note", "my document"].some((k) =>
-      lower.includes(k),
-    )
-  ) {
-    return "file_operation";
-  }
-  if (
-    ["search for", "find all", "which notes", "grep"].some((k) =>
-      lower.includes(k),
-    )
-  ) {
-    return "search";
-  }
-
-  if (
-    [
+const KEYWORD_ROUTES: { keywords: string[]; task: TaskType }[] = [
+  {
+    task: "file_operation",
+    keywords: ["read ", "open ", "show me", "my note", "my document"],
+  },
+  {
+    task: "search",
+    keywords: ["search for", "find all", "which notes", "grep"],
+  },
+  {
+    task: "git",
+    keywords: [
       "git status",
       "git diff",
       "git log",
@@ -43,11 +35,30 @@ export async function routeTask(userMessage: string): Promise<TaskType> {
       "show me the diff",
       "show diff",
       "show changes",
-    ].some((k) => lower.includes(k))
-  ) {
-    return "git";
-  }
+    ],
+  },
+];
 
+const VALID_TASKS: TaskType[] = [
+  "file_operation",
+  "code_generation",
+  "explanation",
+  "shell_command",
+  "search",
+  "git",
+  "general",
+];
+
+export async function routeTask(userMessage: string): Promise<TaskType> {
+  const lower = userMessage.toLowerCase();
+
+  // Keyword override — short circuit before hitting model
+  const override = KEYWORD_ROUTES.find(({ keywords }) =>
+    keywords.some((k) => lower.includes(k)),
+  );
+  if (override) return override.task;
+
+  // Model-based classification
   const stop = startSpinner("Routing");
   try {
     const response = await fetch(OLLAMA_URL, {
@@ -65,21 +76,8 @@ export async function routeTask(userMessage: string): Promise<TaskType> {
 
     const data = await response.json();
     const raw = data.message.content.trim().toLowerCase();
-
-    // Validate it's a known task type
-    const validTasks: TaskType[] = [
-      "file_operation",
-      "code_generation",
-      "explanation",
-      "shell_command",
-      "search",
-      "general",
-    ];
-
-    const task = validTasks.find((t) => raw.includes(t)) ?? "general";
-    return task;
+    return VALID_TASKS.find((t) => raw.includes(t)) ?? "general";
   } catch {
-    // Fallback if router model fails
     return "general";
   } finally {
     stop();
