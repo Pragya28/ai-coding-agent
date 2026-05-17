@@ -14,7 +14,6 @@ export type TaskType =
 export async function routeTask(userMessage: string): Promise<TaskType> {
   const lower = userMessage.toLowerCase();
 
-  // Keyword overrides before hitting the model
   if (
     ["read ", "open ", "show me", "my note", "my document"].some((k) =>
       lower.includes(k),
@@ -40,6 +39,10 @@ export async function routeTask(userMessage: string): Promise<TaskType> {
       "what changed",
       "staged",
       "commit history",
+      "recent commits",
+      "show me the diff",
+      "show diff",
+      "show changes",
     ].some((k) => lower.includes(k))
   ) {
     return "git";
