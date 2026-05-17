@@ -3,10 +3,36 @@ import * as path from "path";
 
 const LOGS_DIR = path.resolve(__dirname, "../../logs");
 
+function cleanOldLogs() {
+  if (!fs.existsSync(LOGS_DIR)) return;
+
+  const files = fs
+    .readdirSync(LOGS_DIR)
+    .filter((f) => f.startsWith("session-") && f.endsWith(".md"))
+    .map((f) => ({
+      name: f,
+      fullPath: path.join(LOGS_DIR, f),
+      mtime: fs.statSync(path.join(LOGS_DIR, f)).mtime,
+    }))
+    .sort((a, b) => b.mtime.getTime() - a.mtime.getTime()); // newest first
+
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 7);
+
+  files.forEach((file, index) => {
+    const tooOld = file.mtime < cutoff;
+    const overLimit = index >= 50;
+    if (tooOld || overLimit) {
+      fs.unlinkSync(file.fullPath);
+    }
+  });
+}
+
 function ensureLogsDir() {
   if (!fs.existsSync(LOGS_DIR)) {
     fs.mkdirSync(LOGS_DIR, { recursive: true });
   }
+  cleanOldLogs();
 }
 
 function getSessionFilename(): string {
