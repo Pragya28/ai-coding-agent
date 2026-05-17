@@ -3,7 +3,7 @@ import { writeFile } from "./write-file/write-file";
 import { listDirectory } from "./list-directory/list-directory";
 import { searchFiles } from "./search-files/search-files";
 import { runShell } from "./run-shell";
-import { gitDiff, gitLog, gitAdd, gitCommit, gitStatus } from "./git";
+import { gitDiff, gitLog, gitAdd, gitCommit, gitStatus } from "./git/git";
 
 export { ToolResult } from "./types";
 

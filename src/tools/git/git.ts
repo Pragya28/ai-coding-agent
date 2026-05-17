@@ -1,6 +1,6 @@
 import { execSync } from "child_process";
-import { ToolResult } from "./types";
-import { WORKSPACE } from "../constants";
+import { ToolResult } from "../types";
+import { WORKSPACE } from "../../constants";
 
 function runGit(command: string): ToolResult {
   try {

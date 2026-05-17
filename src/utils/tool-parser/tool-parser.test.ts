@@ -127,3 +127,68 @@ describe("executeTool", () => {
     expect(result.success).toBe(true);
   });
 });
+
+describe("parseToolCall — git tools", () => {
+  it("parses git_status with no argument", () => {
+    const result = parseToolCall("TOOL: git_status");
+    expect(result).toEqual({
+      name: "git_status",
+      argument: "",
+      secondArgument: undefined,
+    });
+  });
+
+  it("parses git_diff with no argument", () => {
+    const result = parseToolCall("TOOL: git_diff");
+    expect(result).toEqual({
+      name: "git_diff",
+      argument: "",
+      secondArgument: undefined,
+    });
+  });
+
+  it("parses git_diff with file path", () => {
+    const result = parseToolCall("TOOL: git_diff | src/index.ts");
+    expect(result).toEqual({
+      name: "git_diff",
+      argument: "src/index.ts",
+      secondArgument: undefined,
+    });
+  });
+
+  it("parses git_log with no argument", () => {
+    const result = parseToolCall("TOOL: git_log");
+    expect(result).toEqual({
+      name: "git_log",
+      argument: "",
+      secondArgument: undefined,
+    });
+  });
+
+  it("parses git_add with no argument", () => {
+    const result = parseToolCall("TOOL: git_add");
+    expect(result).toEqual({
+      name: "git_add",
+      argument: "",
+      secondArgument: undefined,
+    });
+  });
+
+  it("parses git_add with file path", () => {
+    const result = parseToolCall("TOOL: git_add | src/index.ts");
+    expect(result).toEqual({
+      name: "git_add",
+      argument: "src/index.ts",
+      secondArgument: undefined,
+    });
+  });
+
+  it("parses git_commit with message", () => {
+    const result = parseToolCall("TOOL: git_commit | feat: add new feature");
+    expect(result).toEqual({
+      name: "git_commit",
+      argument: "feat: add new feature",
+      secondArgument: undefined,
+    });
+  });
+});
