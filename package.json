@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "bin": {
-    "agent": "./bin/agent.js"
+    "agent": "./bin/agent.cjs"
   },
   "scripts": {
     "dev": "tsx src/main.ts",
