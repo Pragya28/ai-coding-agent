@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const LOGS_DIR = path.resolve("logs");
+const LOGS_DIR = path.resolve(__dirname, "../../logs");
 
 function ensureLogsDir() {
   if (!fs.existsSync(LOGS_DIR)) {
