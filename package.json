@@ -2,6 +2,9 @@
   "name": "ai-coding-agent",
   "version": "1.0.0",
   "description": "",
+  "bin": {
+    "agent": "./bin/agent.js"
+  },
   "scripts": {
     "dev": "tsx src/main.ts",
     "dev:plan": "tsx src/main.ts -- --plan",
