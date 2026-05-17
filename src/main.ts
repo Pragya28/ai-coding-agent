@@ -58,8 +58,7 @@ async function main() {
 
       try {
         logger.logUser(userInput);
-        const response = await runAgentLoop(userInput, rl, logger);
-        console.log(`\nAgent: ${response}`);
+        await runAgentLoop(userInput, rl, logger);
         const stats = getContextStats(messages);
         console.log(stats + "\n");
         logger.logContextStats(stats);

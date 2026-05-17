@@ -20,23 +20,29 @@ export async function runAgentLoop(
   messages.push({ role: "user", content: userInput });
 
   for (let i = 0; i < MAX_ITERATIONS; i++) {
-    const response = await callOllama(model, logger);
-    messages.push({ role: "assistant", content: response });
+    const toolCall_check = await callOllama(model, logger, true);
+    messages.push({ role: "assistant", content: toolCall_check });
 
-    const toolCall = parseToolCall(response);
+    const toolCall = parseToolCall(toolCall_check);
 
     if (!toolCall) {
-      const cleaned = response
+      const cleaned = toolCall_check
         .replace(/^PLAN:.*$/gm, "")
         .replace(/Now show the user the EXACT contents.*$/s, "")
         .trim();
+      process.stdout.write("\nAgent: ");
+      for (const char of cleaned) {
+        process.stdout.write(char);
+        await new Promise((r) => setTimeout(r, 8));
+      }
+      process.stdout.write("\n");
       logger.logAgent(cleaned);
       return cleaned;
     }
 
     if (PLAN_MODE) {
       const plan =
-        extractPlan(response) ??
+        extractPlan(toolCall_check) ??
         `call ${toolCall.name} with "${toolCall.argument}"`;
       const confirmed = await confirmPlan(plan, rl);
 
