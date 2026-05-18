@@ -6,6 +6,7 @@ import { selectModel } from "./model-selector";
 import { executeTool, parseToolCall } from "../utils/tool-parser/tool-parser";
 import { confirmPlan, extractPlan } from "./planner";
 import { Logger } from "../utils/logger";
+import { startSpinner } from "../utils/spinner";
 
 export async function runAgentLoop(
   userInput: string,
@@ -20,7 +21,9 @@ export async function runAgentLoop(
   messages.push({ role: "user", content: userInput });
 
   for (let i = 0; i < MAX_ITERATIONS; i++) {
+    const stop = startSpinner(`Thinking with ${model}`);
     const toolCall_check = await callOllama(model, logger, true);
+    stop();
     messages.push({ role: "assistant", content: toolCall_check });
 
     const toolCall = parseToolCall(toolCall_check);
