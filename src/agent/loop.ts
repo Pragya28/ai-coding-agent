@@ -1,5 +1,5 @@
 import * as readline from "readline";
-import { MAX_ITERATIONS, PLAN_MODE } from "../constants";
+import { MAX_ITERATIONS, PLAN_MODE, VERBOSE } from "../constants";
 import { callOllama, messages } from "./chat";
 import { routeTask } from "./router";
 import { selectModel } from "./model-selector";
@@ -25,6 +25,7 @@ export async function runAgentLoop(
     const stop = startSpinner(`Thinking with ${model}`);
     const response = await callOllama(model, logger, true);
     stop();
+    if (VERBOSE) process.stdout.write("\n");
     messages.push({ role: "assistant", content: response });
 
     verboseLog("Raw Model Response", response);
@@ -71,9 +72,11 @@ export async function runAgentLoop(
       }
     }
 
-    console.log(
-      `\n[Tool: ${toolCall.name} | ${toolCall.argument}${toolCall.secondArgument ? ` | ${toolCall.secondArgument}` : ""}]`,
-    );
+    const toolDisplay = toolCall.argument
+      ? `${toolCall.name} | ${toolCall.argument}${toolCall.secondArgument ? ` | ${toolCall.secondArgument}` : ""}`
+      : toolCall.name;
+    console.log(`\n[Tool: ${toolDisplay}]`);
+
     const result = executeTool(toolCall);
     console.log(`[Result: ${result.success ? "success" : "failed"}]\n`);
     logger.logTool(
