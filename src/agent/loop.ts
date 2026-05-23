@@ -7,6 +7,7 @@ import { executeTool, parseToolCall } from "../utils/tool-parser/tool-parser";
 import { confirmPlan, extractPlan } from "./planner";
 import { Logger } from "../utils/logger";
 import { startSpinner } from "../utils/spinner";
+import { verboseLog } from "../utils/verbose";
 
 export async function runAgentLoop(
   userInput: string,
@@ -22,14 +23,25 @@ export async function runAgentLoop(
 
   for (let i = 0; i < MAX_ITERATIONS; i++) {
     const stop = startSpinner(`Thinking with ${model}`);
-    const toolCall_check = await callOllama(model, logger, true);
+    const response = await callOllama(model, logger, true);
     stop();
-    messages.push({ role: "assistant", content: toolCall_check });
+    messages.push({ role: "assistant", content: response });
 
-    const toolCall = parseToolCall(toolCall_check);
+    verboseLog("Raw Model Response", response);
+
+    const toolCall = parseToolCall(response);
+
+    if (toolCall) {
+      verboseLog("Parsed Tool Call", JSON.stringify(toolCall, null, 2));
+    } else {
+      verboseLog(
+        "No Tool Call Detected — Final Answer",
+        response.slice(0, 200),
+      );
+    }
 
     if (!toolCall) {
-      const cleaned = toolCall_check
+      const cleaned = response
         .replace(/^PLAN:.*$/gm, "")
         .replace(/Now show the user the EXACT contents.*$/s, "")
         .trim();
@@ -45,7 +57,7 @@ export async function runAgentLoop(
 
     if (PLAN_MODE) {
       const plan =
-        extractPlan(toolCall_check) ??
+        extractPlan(response) ??
         `call ${toolCall.name} with "${toolCall.argument}"`;
       const confirmed = await confirmPlan(plan, rl);
 
@@ -106,6 +118,19 @@ export async function runAgentLoop(
         content: `Tool result:\n${result.output}\n\nReport this result to the user exactly as shown. Do NOT take any further actions. Do NOT call any more tools. Do NOT stage, commit, or modify anything unless the user explicitly asked for it.`,
       });
     }
+
+    verboseLog(
+      "Tool Result",
+      JSON.stringify(
+        {
+          success: result.success,
+          outputLength: result.output.length,
+          output: result.output.slice(0, 500),
+        },
+        null,
+        2,
+      ),
+    );
   }
 
   // At the end of the loop

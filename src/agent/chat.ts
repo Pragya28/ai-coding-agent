@@ -1,4 +1,4 @@
-import { OLLAMA_URL } from "../constants";
+import { OLLAMA_URL, VERBOSE } from "../constants";
 import { SYSTEM_PROMPT } from "../prompts/system";
 import { trimMessages } from "../utils/context-manager/context-manager";
 import { Logger } from "../utils/logger";
@@ -81,5 +81,9 @@ export async function callOllama(
     reader.releaseLock();
   }
 
+  if (VERBOSE) {
+    const approxTokens = Math.round(fullContent.length / 4);
+    console.log(`\n[VERBOSE] Response tokens: ~${approxTokens}`);
+  }
   return fullContent;
 }

@@ -1,6 +1,7 @@
 import { OLLAMA_URL } from "../constants";
 import { ROUTER_PROMPT } from "../prompts/router";
 import { startSpinner } from "../utils/spinner";
+import { verboseLog } from "../utils/verbose";
 
 export type TaskType =
   | "file_operation"
@@ -76,7 +77,12 @@ export async function routeTask(userMessage: string): Promise<TaskType> {
 
     const data = await response.json();
     const raw = data.message.content.trim().toLowerCase();
-    return VALID_TASKS.find((t) => raw.includes(t)) ?? "general";
+    const task = VALID_TASKS.find((t) => raw.includes(t)) ?? "general";
+    verboseLog(
+      "Router Raw Response",
+      `Input: "${userMessage}"\nRaw: "${raw}"\nClassified: "${task}"`,
+    );
+    return task;
   } catch {
     return "general";
   } finally {

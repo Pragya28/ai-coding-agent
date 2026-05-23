@@ -1,5 +1,5 @@
 import * as readline from "readline";
-import { WORKSPACE, PLAN_MODE } from "./constants";
+import { WORKSPACE, PLAN_MODE, VERBOSE } from "./constants";
 import { runAgentLoop } from "./agent/loop";
 import { getContextStats } from "./utils/context-manager/context-manager";
 import { messages } from "./agent/chat";
@@ -13,6 +13,7 @@ function printSessionInfo() {
   console.log(`  Models    : qwen2.5-coder:3b (local)`);
   console.log(`  Workspace : ${WORKSPACE}`);
   console.log(`  Plan Mode : ${PLAN_MODE ? "on" : "off"}`);
+  console.log(`  Verbose   : ${VERBOSE ? "on" : "off"}`);
   console.log(`  Tools     : fs · shell · git`);
   console.log("─────────────────────────────────────────");
   console.log('  Type "exit" to quit\n');

@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "tsx src/main.ts",
     "dev:plan": "tsx src/main.ts -- --plan",
+    "dev:verbose": "tsx src/main.ts -- --verbose",
+    "dev:all": "tsx src/main.ts -- --plan --verbose",
     "serve": "OLLAMA_MAX_LOADED_MODELS=2 ollama serve",
     "build": "tsc",
     "test": "vitest run",
