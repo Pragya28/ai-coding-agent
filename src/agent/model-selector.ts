@@ -13,3 +13,11 @@ const MODEL_MAP: Record<TaskType, string> = {
 export function selectModel(task: TaskType): string {
   return MODEL_MAP[task];
 }
+
+export function getDefaultModel(): string {
+  return MODEL_MAP["general"];
+}
+
+export function getAllModels(): string[] {
+  return [...new Set(Object.values(MODEL_MAP))];
+}

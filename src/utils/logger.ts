@@ -14,15 +14,13 @@ function cleanOldLogs() {
       fullPath: path.join(LOGS_DIR, f),
       mtime: fs.statSync(path.join(LOGS_DIR, f)).mtime,
     }))
-    .sort((a, b) => b.mtime.getTime() - a.mtime.getTime()); // newest first
+    .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
 
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 7);
 
   files.forEach((file, index) => {
-    const tooOld = file.mtime < cutoff;
-    const overLimit = index >= 50;
-    if (tooOld || overLimit) {
+    if (file.mtime < cutoff || index >= 50) {
       fs.unlinkSync(file.fullPath);
     }
   });
@@ -44,6 +42,7 @@ function getSessionFilename(): string {
 export class Logger {
   private filePath: string;
   private buffer: string[] = [];
+  private turnStart: number = Date.now();
 
   constructor() {
     ensureLogsDir();
@@ -58,12 +57,31 @@ export class Logger {
     fs.appendFileSync(this.filePath, content, "utf-8");
   }
 
+  logSessionStart(
+    workspace: string,
+    fileCount: number,
+    folderCount: number,
+    cacheStatus: string,
+    routerModel: string,
+    taskModel: string,
+  ) {
+    this.write(`\n> 📁 Workspace: \`${workspace}\`\n`);
+    this.write(
+      `> 🗂 Indexed: ${fileCount} files, ${folderCount} folders (${cacheStatus})\n`,
+    );
+    this.write(
+      `> 🔧 Models: router=\`${routerModel}\` | tasks=\`${taskModel}\`\n`,
+    );
+  }
+
   logUser(input: string) {
+    this.turnStart = Date.now(); // reset timer on each user message
     this.write(`\n## 🧑 User\n\`\`\`\n${input}\n\`\`\`\n`);
   }
 
   logRouter(taskType: string, model: string) {
     this.write(`\n> 🔀 Router: **${taskType}** → \`${model}\`\n`);
+    this.write(`> 🤖 Model: \`${model}\`\n`);
   }
 
   logTool(
@@ -75,8 +93,6 @@ export class Logger {
   ) {
     const args = secondArgument ? `${argument} | ${secondArgument}` : argument;
     const status = success ? "✅" : "❌";
-
-    // Use higher limit for search results
     const limit = name === "search_files" ? 2000 : 500;
 
     this.write(
@@ -86,6 +102,13 @@ export class Logger {
 
   logAgent(response: string) {
     this.write(`\n## 🤖 Agent\n${response}\n`);
+  }
+
+  logTurnEnd(iterations: number, maxIterations: number) {
+    const elapsed = ((Date.now() - this.turnStart) / 1000).toFixed(1);
+    this.write(
+      `\n> ⏱ ${elapsed}s | 🔁 Iterations: ${iterations}/${maxIterations}\n`,
+    );
   }
 
   logContextStats(stats: string) {

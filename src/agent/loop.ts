@@ -21,7 +21,9 @@ export async function runAgentLoop(
 
   messages.push({ role: "user", content: userInput });
 
+  let iterationCount = 0;
   for (let i = 0; i < MAX_ITERATIONS; i++) {
+    iterationCount = i + 1;
     const stop = startSpinner(`Thinking with ${model}`);
     const response = await callOllama(model, logger, true);
     stop();
@@ -53,6 +55,7 @@ export async function runAgentLoop(
       }
       process.stdout.write("\n");
       logger.logAgent(cleaned);
+      logger.logTurnEnd(i + 1, MAX_ITERATIONS);
       return cleaned;
     }
 
@@ -146,5 +149,6 @@ export async function runAgentLoop(
     : "Reached max iterations without completing the task. Please try rephrasing your request.";
 
   logger.logSystem("Max iterations reached");
+  logger.logTurnEnd(iterationCount, MAX_ITERATIONS);
   return summary;
 }

@@ -1,4 +1,4 @@
-import { OLLAMA_URL } from "../constants";
+import { OLLAMA_URL, ROUTER_MODEL } from "../constants";
 import { ROUTER_PROMPT } from "../prompts/router";
 import { startSpinner } from "../utils/spinner";
 import { verboseLog } from "../utils/verbose";
@@ -50,6 +50,10 @@ const VALID_TASKS: TaskType[] = [
   "general",
 ];
 
+export function getRouterModel(): string {
+  return ROUTER_MODEL;
+}
+
 export async function routeTask(userMessage: string): Promise<TaskType> {
   const lower = userMessage.toLowerCase();
 
@@ -66,7 +70,7 @@ export async function routeTask(userMessage: string): Promise<TaskType> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "lfm2.5-thinking:1.2b",
+        model: ROUTER_MODEL,
         messages: [
           { role: "system", content: ROUTER_PROMPT },
           { role: "user", content: userMessage },

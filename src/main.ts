@@ -7,6 +7,8 @@ import { Logger } from "./utils/logger";
 import { loadOrBuildIndex, renderTree } from "./utils/workspace-indexer";
 import { printSessionInfo } from "./utils/session-info";
 import path from "path";
+import { getAllModels } from "./agent/model-selector";
+import { getRouterModel } from "./agent/router";
 
 async function main() {
   console.log("  Indexing workspace...");
@@ -19,7 +21,14 @@ async function main() {
   const cacheStatus = fromCache ? "cached" : `rebuilt (${staleReason})`;
 
   const logger = new Logger();
-
+  logger.logSessionStart(
+    WORKSPACE,
+    index.fileCount,
+    index.folderCount,
+    cacheStatus,
+    getRouterModel(),
+    getAllModels().join(" | "),
+  );
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,

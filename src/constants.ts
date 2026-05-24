@@ -2,6 +2,7 @@ import "dotenv/config";
 
 export const OLLAMA_URL = "http://localhost:11434/api/chat";
 export const MODEL = "qwen2.5-coder:3b";
+export const ROUTER_MODEL = "lfm2.5-thinking:1.2b";
 export const PLAN_MODE = process.argv.includes("--plan");
 export const VERBOSE = process.argv.includes("--verbose");
 export const REINDEX = process.argv.includes("--reindex");
