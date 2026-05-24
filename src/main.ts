@@ -9,6 +9,7 @@ import { printSessionInfo } from "./utils/session-info";
 import path from "path";
 import { getAllModels } from "./agent/model-selector";
 import { getRouterModel } from "./agent/router";
+import { handleCommand } from "./utils/commands";
 
 async function main() {
   console.log("  Indexing workspace...");
@@ -51,16 +52,22 @@ async function main() {
     rl.question("You: ", async (input) => {
       const userInput = input.trim();
 
+      if (!userInput) {
+        askQuestion();
+        return;
+      }
+
+      const commandResult = handleCommand(userInput, logger, rl);
+      if (commandResult.handled) {
+        if (!commandResult.exit) askQuestion();
+        return;
+      }
+
       if (userInput === "exit") {
         sessionEnded = true;
         logger.logSessionEnd();
         console.log("Goodbye!");
         rl.close();
-        return;
-      }
-
-      if (!userInput) {
-        askQuestion();
         return;
       }
 
