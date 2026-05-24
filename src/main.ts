@@ -10,6 +10,7 @@ import path from "path";
 import { getAllModels } from "./agent/model-selector";
 import { getRouterModel } from "./agent/router";
 import { handleCommand } from "./utils/commands";
+import { processMentions } from "./utils/mentions";
 
 async function main() {
   console.log("  Indexing workspace...");
@@ -72,8 +73,22 @@ async function main() {
       }
 
       try {
+        const { processedInput, mentionedFiles, errors } =
+          processMentions(userInput);
+
+        if (mentionedFiles.length > 0) {
+          console.log(
+            `\n📎 Attached: ${mentionedFiles.map((f) => `@${f}`).join(", ")}\n`,
+          );
+        }
+        if (errors.length > 0) {
+          errors.forEach((e) => console.log(`⚠️  ${e}`));
+        }
         logger.logUser(userInput);
-        await runAgentLoop(userInput, rl, logger);
+        if (mentionedFiles.length > 0) {
+          logger.logSystem(`File mentions: ${mentionedFiles.join(", ")}`);
+        }
+        await runAgentLoop(processedInput, rl, logger);
         const stats = getContextStats(messages);
         console.log(stats + "\n");
         logger.logContextStats(stats);
