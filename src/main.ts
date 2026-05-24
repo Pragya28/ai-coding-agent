@@ -1,25 +1,23 @@
 import * as readline from "readline";
-import { WORKSPACE, PLAN_MODE, VERBOSE } from "./constants";
+import { WORKSPACE, PLAN_MODE, VERBOSE, REINDEX } from "./constants";
 import { runAgentLoop } from "./agent/loop";
 import { getContextStats } from "./utils/context-manager/context-manager";
 import { messages } from "./agent/chat";
 import { Logger } from "./utils/logger";
-
-function printSessionInfo() {
-  console.log("─────────────────────────────────────────");
-  console.log("  AI Coding Agent");
-  console.log("─────────────────────────────────────────");
-  console.log(`  Router    : lfm2.5-thinking:1.2b`);
-  console.log(`  Models    : qwen2.5-coder:3b (local)`);
-  console.log(`  Workspace : ${WORKSPACE}`);
-  console.log(`  Plan Mode : ${PLAN_MODE ? "on" : "off"}`);
-  console.log(`  Verbose   : ${VERBOSE ? "on" : "off"}`);
-  console.log(`  Tools     : fs · shell · git`);
-  console.log("─────────────────────────────────────────");
-  console.log('  Type "exit" to quit\n');
-}
+import { loadOrBuildIndex, renderTree } from "./utils/workspace-indexer";
+import { printSessionInfo } from "./utils/session-info";
+import path from "path";
 
 async function main() {
+  console.log("  Indexing workspace...");
+
+  const resolvedWorkspace = path.resolve(WORKSPACE);
+  const { index, fromCache, staleReason } = await loadOrBuildIndex(
+    resolvedWorkspace,
+    REINDEX,
+  );
+  const cacheStatus = fromCache ? "cached" : `rebuilt (${staleReason})`;
+
   const logger = new Logger();
 
   const rl = readline.createInterface({
@@ -27,9 +25,9 @@ async function main() {
     output: process.stdout,
   });
 
-  printSessionInfo();
-  console.log(`  Log       : ${logger.getFilePath()}\n`);
-  console.log("─────────────────────────────────────────\n");
+  printSessionInfo({ loggerPath: logger.getFilePath(), index, cacheStatus });
+  process.env.WORKSPACE_TREE = renderTree(index.tree);
+  process.env.WORKSPACE_FILE_COUNT = String(index.fileCount);
 
   let sessionEnded = false;
 

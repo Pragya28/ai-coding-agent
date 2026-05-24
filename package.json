@@ -10,6 +10,7 @@
     "dev:plan": "tsx src/main.ts -- --plan",
     "dev:verbose": "tsx src/main.ts -- --verbose",
     "dev:all": "tsx src/main.ts -- --plan --verbose",
+    "dev:reindex": "tsx src/main.ts -- --reindex",
     "serve": "OLLAMA_MAX_LOADED_MODELS=2 ollama serve",
     "build": "tsc",
     "test": "vitest run",
@@ -28,6 +29,7 @@
     "vitest": "^4.1.6"
   },
   "dependencies": {
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "ignore": "^7.0.5"
   }
 }
