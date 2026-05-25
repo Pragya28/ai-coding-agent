@@ -83,6 +83,7 @@ async function main() {
         }
         if (errors.length > 0) {
           errors.forEach((e) => console.log(`⚠️  ${e}`));
+          return;
         }
         logger.logUser(userInput);
         if (mentionedFiles.length > 0) {
