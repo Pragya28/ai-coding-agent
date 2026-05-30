@@ -1,5 +1,5 @@
 import { PLAN_MODE, VERBOSE, WORKSPACE } from "../constants";
-import { WorkspaceIndex } from "./workspace-indexer";
+import { WorkspaceIndex } from "./workspace-indexer/workspace-indexer";
 
 interface SessionInfo {
   loggerPath: string;

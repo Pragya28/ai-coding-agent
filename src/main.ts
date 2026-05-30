@@ -4,12 +4,15 @@ import { runAgentLoop } from "./agent/loop";
 import { getContextStats } from "./utils/context-manager/context-manager";
 import { messages } from "./agent/chat";
 import { Logger } from "./utils/logger";
-import { loadOrBuildIndex, renderTree } from "./utils/workspace-indexer";
+import {
+  loadOrBuildIndex,
+  renderTree,
+} from "./utils/workspace-indexer/workspace-indexer";
 import { printSessionInfo } from "./utils/session-info";
 import path from "path";
 import { getAllModels } from "./agent/model-selector";
 import { getRouterModel } from "./agent/router";
-import { handleCommand } from "./utils/commands";
+import { handleCommand } from "./utils/commands/commands";
 import { processMentions } from "./utils/mentions/mentions";
 
 async function main() {

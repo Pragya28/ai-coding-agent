@@ -1,10 +1,10 @@
 import * as readline from "readline";
-import { WORKSPACE, PLAN_MODE, VERBOSE } from "../constants";
-import { getRouterModel } from "../agent/router";
-import { getAllModels } from "../agent/model-selector";
-import { Logger } from "./logger";
-import { messages } from "../agent/chat";
-import { getContextStats } from "./context-manager/context-manager";
+import { WORKSPACE, PLAN_MODE, VERBOSE } from "../../constants";
+import { getRouterModel } from "../../agent/router";
+import { getAllModels } from "../../agent/model-selector";
+import { Logger } from "../logger";
+import { messages } from "../../agent/chat";
+import { getContextStats } from "../context-manager/context-manager";
 
 export type CommandResult =
   | { handled: false }

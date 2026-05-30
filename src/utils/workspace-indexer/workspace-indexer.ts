@@ -4,7 +4,7 @@ import * as crypto from "crypto";
 import {
   createIgnoreMatcher,
   DEFAULT_IGNORED,
-} from "./ignore-patterns/ignore-patterns";
+} from "../ignore-patterns/ignore-patterns";
 
 const INDEX_DIR = path.resolve(".agent-index");
 const MAX_INDEX_AGE_DAYS = 7;
