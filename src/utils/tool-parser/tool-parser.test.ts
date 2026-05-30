@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { parseToolCall, executeTool } from "./tool-parser";
+import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
 
 describe("parseToolCall", () => {
   describe("valid tool calls", () => {
@@ -109,10 +112,11 @@ describe("executeTool", () => {
   });
 
   it("calls double argument tool correctly", () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "agent-exec-test-"));
     const result = executeTool({
       name: "search_files",
-      argument: "zzznomatch",
-      secondArgument: ".",
+      argument: "anything",
+      secondArgument: tmpDir,
     });
     expect(result.success).toBe(true);
     expect(result.output).toContain("No matches found");

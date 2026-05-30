@@ -10,7 +10,7 @@ import path from "path";
 import { getAllModels } from "./agent/model-selector";
 import { getRouterModel } from "./agent/router";
 import { handleCommand } from "./utils/commands";
-import { processMentions } from "./utils/mentions";
+import { processMentions } from "./utils/mentions/mentions";
 
 async function main() {
   console.log("  Indexing workspace...");

@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { WORKSPACE } from "../constants";
+import { WORKSPACE } from "../../constants";
 
 interface MentionResult {
   processedInput: string;
