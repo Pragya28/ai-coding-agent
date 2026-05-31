@@ -3,13 +3,18 @@ import { flags, WORKSPACE } from "../../constants";
 import { getRouterModel } from "../../agent/router";
 import { getAllModels } from "../../agent/model-selector";
 import { Logger } from "../logger";
-import { messages } from "../../agent/chat";
+import { messages, resetMessages } from "../../agent/chat";
 import { getContextStats } from "../context-manager/context-manager";
-import { formatSessionDate, listRecentSessions } from "../session-store";
+import {
+  formatSessionDate,
+  listRecentSessions,
+  loadSessionMessages,
+} from "../session-store";
+import { Message } from "../../types";
 
 export type CommandResult =
   | { handled: false }
-  | { handled: true; exit?: boolean };
+  | { handled: true; exit?: boolean; results?: { cmd: string; data: unknown } };
 
 export function handleCommand(
   input: string,
@@ -60,6 +65,11 @@ export function handleCommand(
     case "sessions":
       printSessions();
       return { handled: true };
+
+    case "resume":
+      const num = parseInt(args[0]);
+      const resumed = pickSession(num);
+      return { handled: true, results: { cmd: "resume", data: resumed } };
 
     case "exit":
     case "quit":
@@ -131,10 +141,28 @@ function printSessions() {
   console.log("\n─────────────────────────────────────────");
   console.log("  Recent Sessions");
   console.log("─────────────────────────────────────────");
+
   sessions.forEach((s, i) => {
     console.log(
       `  ${i + 1}. ${formatSessionDate(s.date)} — ${s.messageCount} messages`,
     );
   });
-  console.log("─────────────────────────────────────────\n");
+
+  console.log("─────────────────────────────────────────");
+  console.log("Use /resume <number> to resume a session");
+  console.log("─────────────────────────────────────────");
+}
+
+function pickSession(num: number): string | null {
+  const sessions = listRecentSessions(10);
+  if (!isNaN(num) && num >= 1 && num <= sessions.length) {
+    const selected = sessions[num - 1];
+    const messages = loadSessionMessages(selected.jsonPath);
+    console.log(
+      `\n✓ Resuming session from ${formatSessionDate(selected.date)}\n`,
+    );
+    resetMessages(messages);
+    return selected.name;
+  }
+  return null;
 }

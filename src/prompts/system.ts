@@ -1,16 +1,16 @@
 import { flags, WORKSPACE } from "../constants";
 
-const WORKSPACE_TREE = process.env.WORKSPACE_TREE ?? "";
-const FILE_COUNT = process.env.WORKSPACE_FILE_COUNT ?? "unknown";
+export function getSystemPrompt(): string {
+  const WORKSPACE_TREE = process.env.WORKSPACE_TREE ?? "";
+  const FILE_COUNT = process.env.WORKSPACE_FILE_COUNT ?? "unknown";
 
-const WORKSPACE_HINT = `Your current workspace is: ${WORKSPACE} (${FILE_COUNT} files indexed).
-
-Workspace structure:
-${WORKSPACE_TREE}
-
-Use these exact paths when calling tools. Do not guess or invent paths.`;
-
-export const SYSTEM_PROMPT = `
+  const WORKSPACE_HINT = `Your current workspace is: ${WORKSPACE} (${FILE_COUNT} files indexed).
+  
+  Workspace structure:
+  ${WORKSPACE_TREE}
+  
+  Use these exact paths when calling tools. Do not guess or invent paths.`;
+  return `
 You are a helpful coding assistant with access to these tools:
 
 - read_file: Read the EXACT contents of a file. Use this for reading any file.
@@ -66,3 +66,4 @@ TOOL: git_add | src/index.ts
 TOOL: git_add
 TOOL: git_commit | feat: add new feature
 `;
+}

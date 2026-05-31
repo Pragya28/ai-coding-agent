@@ -14,52 +14,6 @@ import { getAllModels } from "./agent/model-selector";
 import { getRouterModel } from "./agent/router";
 import { handleCommand } from "./utils/commands/commands";
 import { processMentions } from "./utils/mentions/mentions";
-import {
-  listRecentSessions,
-  loadSessionMessages,
-  formatSessionDate,
-} from "./utils/session-store";
-import { Message } from "./types";
-import { SYSTEM_PROMPT } from "./prompts/system";
-
-async function pickSession(
-  rl: readline.Interface,
-): Promise<{ messages: Message[]; resumedFrom?: string } | null> {
-  const sessions = listRecentSessions(10);
-
-  if (sessions.length === 0) return null;
-
-  console.log("─────────────────────────────────────────");
-  console.log("  Recent Sessions");
-  console.log("─────────────────────────────────────────");
-
-  sessions.forEach((s, i) => {
-    console.log(
-      `  ${i + 1}. ${formatSessionDate(s.date)} — ${s.messageCount} messages`,
-    );
-  });
-
-  console.log("─────────────────────────────────────────");
-
-  return new Promise((resolve) => {
-    rl.question(
-      "  Resume a session (1-10) or press Enter to start fresh: ",
-      (answer) => {
-        const num = parseInt(answer.trim());
-        if (!isNaN(num) && num >= 1 && num <= sessions.length) {
-          const selected = sessions[num - 1];
-          const messages = loadSessionMessages(selected.jsonPath);
-          console.log(
-            `\n✓ Resuming session from ${formatSessionDate(selected.date)}\n`,
-          );
-          resolve({ messages, resumedFrom: selected.name });
-        } else {
-          resolve(null);
-        }
-      },
-    );
-  });
-}
 
 async function main() {
   console.log("  Indexing workspace...");
@@ -76,13 +30,6 @@ async function main() {
     output: process.stdout,
   });
 
-  let resumedFrom: string | undefined;
-  const resumed = await pickSession(rl);
-  if (resumed) {
-    messages.splice(0, messages.length, ...resumed.messages);
-    resumedFrom = resumed.resumedFrom;
-  }
-
   let logger = new Logger();
 
   logger.logSessionStart(
@@ -92,11 +39,11 @@ async function main() {
     cacheStatus,
     getRouterModel(),
     getAllModels().join(" | "),
-    resumedFrom,
   );
   printSessionInfo({ loggerPath: logger.getMdPath(), index, cacheStatus });
   process.env.WORKSPACE_TREE = renderTree(index.tree);
   process.env.WORKSPACE_FILE_COUNT = String(index.fileCount);
+  resetMessages();
 
   let sessionEnded = false;
 
@@ -104,12 +51,16 @@ async function main() {
     if (!sessionEnded) {
       sessionEnded = true;
       logger.logSessionEnd();
+      logger.saveMessages(messages);
     }
   });
 
   function startNewSession() {
     // Save current session
-    logger.logSessionEnd();
+    if (!sessionEnded) {
+      sessionEnded = true;
+      logger.logSessionEnd();
+    }
     logger.saveMessages(messages);
 
     // Reset messages
@@ -144,6 +95,18 @@ async function main() {
         startNewSession,
       );
       if (commandResult.handled) {
+        if (commandResult.results) {
+          if (commandResult.results.cmd === "resume")
+            logger.logSessionStart(
+              WORKSPACE,
+              index.fileCount,
+              index.folderCount,
+              cacheStatus,
+              getRouterModel(),
+              getAllModels().join(" | "),
+              String(commandResult.results.data),
+            );
+        }
         if (!commandResult.exit) askQuestion();
         return;
       }

@@ -1,11 +1,11 @@
 import { flags, OLLAMA_URL } from "../constants";
-import { SYSTEM_PROMPT } from "../prompts/system";
+import { getSystemPrompt } from "../prompts/system";
 import { Message } from "../types";
 import { trimMessages } from "../utils/context-manager/context-manager";
 import { Logger } from "../utils/logger";
 
 export function createMessages(): Message[] {
-  return [{ role: "system", content: SYSTEM_PROMPT }];
+  return [{ role: "system", content: getSystemPrompt() }];
 }
 
 export function resetMessages(initial?: Message[]) {
@@ -13,7 +13,7 @@ export function resetMessages(initial?: Message[]) {
   if (initial && initial.length > 0) {
     messages.push(...initial);
   } else {
-    messages.push({ role: "system", content: SYSTEM_PROMPT });
+    messages.push({ role: "system", content: getSystemPrompt() });
   }
 }
 
