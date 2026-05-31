@@ -138,31 +138,61 @@ function printSessions() {
     console.log("\nNo previous sessions found.\n");
     return;
   }
+
   console.log("\n─────────────────────────────────────────");
   console.log("  Recent Sessions");
   console.log("─────────────────────────────────────────");
 
   sessions.forEach((s, i) => {
+    const preview = s.firstMessage
+      ? `"${s.firstMessage}${s.firstMessage.length >= 60 ? "..." : ""}"`
+      : "(no messages)";
     console.log(
       `  ${i + 1}. ${formatSessionDate(s.date)} — ${s.messageCount} messages`,
     );
+    console.log(`     ${preview}`);
   });
 
   console.log("─────────────────────────────────────────");
-  console.log("Use /resume <number> to resume a session");
-  console.log("─────────────────────────────────────────");
+  console.log("  Use /resume <number> to resume a session");
+  console.log("─────────────────────────────────────────\n");
 }
 
 function pickSession(num: number): string | null {
   const sessions = listRecentSessions(10);
   if (!isNaN(num) && num >= 1 && num <= sessions.length) {
     const selected = sessions[num - 1];
-    const messages = loadSessionMessages(selected.jsonPath);
+    const loadedMessages = loadSessionMessages(selected.jsonPath);
+
+    resetMessages(loadedMessages);
+
+    // Print conversation history
+    const nonSystem = loadedMessages.filter((m) => m.role !== "system");
+    if (nonSystem.length > 0) {
+      console.log("\n─────────────────────────────────────────");
+      console.log("  Resumed Conversation");
+      console.log("─────────────────────────────────────────");
+      nonSystem.forEach((m) => {
+        const label = m.role === "user" ? "🧑 You" : "🤖 Agent";
+        const content = m.content
+          .replace(
+            /Tool result:[\s\S]*?Do NOT call any more tools\./g,
+            "[tool result]",
+          )
+          .slice(0, 200);
+        console.log(`\n  ${label}:`);
+        console.log(`  ${content}${m.content.length > 200 ? "..." : ""}`);
+      });
+      console.log("\n─────────────────────────────────────────\n");
+    }
+
     console.log(
-      `\n✓ Resuming session from ${formatSessionDate(selected.date)}\n`,
+      `✓ Resuming session from ${formatSessionDate(selected.date)}\n`,
     );
-    resetMessages(messages);
     return selected.name;
   }
+  console.log(
+    `\n⚠️  Invalid session number. Use /sessions to see available sessions.\n`,
+  );
   return null;
 }

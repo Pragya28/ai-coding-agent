@@ -11,6 +11,7 @@ export interface SessionMeta {
   date: Date;
   messageCount: number;
   workspace?: string;
+  firstMessage?: string;
 }
 
 export function listRecentSessions(limit = 10): SessionMeta[] {
@@ -32,12 +33,15 @@ export function listRecentSessions(limit = 10): SessionMeta[] {
       const mdPath = path.join(fullPath, "session.md");
       const stat = fs.statSync(fullPath);
       let messageCount = 0;
+      let firstMessage: string | undefined;
 
       try {
-        const messages = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
-        messageCount = messages.filter(
-          (m: Message) => m.role !== "system",
-        ).length;
+        const msgs = JSON.parse(
+          fs.readFileSync(jsonPath, "utf-8"),
+        ) as Message[];
+        const nonSystem = msgs.filter((m) => m.role !== "system");
+        messageCount = nonSystem.length;
+        firstMessage = nonSystem[0]?.content?.slice(0, 60).replace(/\n/g, " ");
       } catch {}
 
       return {
@@ -47,6 +51,7 @@ export function listRecentSessions(limit = 10): SessionMeta[] {
         jsonPath,
         date: stat.mtime,
         messageCount,
+        firstMessage,
       };
     })
     .sort((a, b) => b.date.getTime() - a.date.getTime())
