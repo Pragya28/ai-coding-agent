@@ -1,10 +1,11 @@
 import * as readline from "readline";
-import { WORKSPACE, PLAN_MODE, VERBOSE } from "../../constants";
+import { flags, WORKSPACE } from "../../constants";
 import { getRouterModel } from "../../agent/router";
 import { getAllModels } from "../../agent/model-selector";
 import { Logger } from "../logger";
 import { messages } from "../../agent/chat";
 import { getContextStats } from "../context-manager/context-manager";
+import { formatSessionDate, listRecentSessions } from "../session-store";
 
 export type CommandResult =
   | { handled: false }
@@ -14,6 +15,7 @@ export function handleCommand(
   input: string,
   logger: Logger,
   rl: readline.Interface,
+  onNewSession: () => void,
 ): CommandResult {
   const trimmed = input.trim();
   if (!trimmed.startsWith("/")) return { handled: false };
@@ -31,6 +33,32 @@ export function handleCommand(
 
     case "status":
       printStatus();
+      return { handled: true };
+
+    case "verbose":
+      flags.VERBOSE = !flags.VERBOSE;
+      console.log(`\n✓ Verbose mode: ${flags.VERBOSE ? "on" : "off"}\n`);
+      logger.logSystem(`Verbose mode toggled: ${flags.VERBOSE ? "on" : "off"}`);
+      return { handled: true };
+
+    case "plan":
+      flags.PLAN_MODE = !flags.PLAN_MODE;
+      console.log(`\n✓ Plan mode: ${flags.PLAN_MODE ? "on" : "off"}\n`);
+      logger.logSystem(`Plan mode toggled: ${flags.PLAN_MODE ? "on" : "off"}`);
+      return { handled: true };
+
+    case "reindex":
+      flags.REINDEX = true;
+      console.log("\n✓ Reindex flag set — will reindex on next startup.\n");
+      logger.logSystem("Reindex flag set");
+      return { handled: true };
+
+    case "new":
+      onNewSession();
+      return { handled: true };
+
+    case "sessions":
+      printSessions();
       return { handled: true };
 
     case "exit":
@@ -56,11 +84,15 @@ function printHelp() {
   /help          Show this help message
   /clear         Clear conversation history
   /status        Show current session status
+  /verbose       Toggle verbose mode on/off
+  /plan          Toggle plan mode on/off
+  /reindex       Force workspace reindex on next start
+  /sessions      List recent sessions
+  /new           Start a new session
   /exit          Exit the agent
 ─────────────────────────────────────────
   Tips:
-  @path/to/file  Mention a file in your prompt
-                 e.g. "explain @src/agent/loop.ts"
+  @path/to/file  Inject file contents into prompt
 ─────────────────────────────────────────
 `);
 }
@@ -83,9 +115,26 @@ function printStatus() {
   Workspace : ${WORKSPACE}
   Router    : ${getRouterModel()}
   Models    : ${getAllModels().join(" | ")}
-  Plan Mode : ${PLAN_MODE ? "on" : "off"}
-  Verbose   : ${VERBOSE ? "on" : "off"}
+  Plan Mode : ${flags.PLAN_MODE ? "on" : "off"}
+  Verbose   : ${flags.VERBOSE ? "on" : "off"}
   ${stats}
 ─────────────────────────────────────────
 `);
+}
+
+function printSessions() {
+  const sessions = listRecentSessions(10);
+  if (sessions.length === 0) {
+    console.log("\nNo previous sessions found.\n");
+    return;
+  }
+  console.log("\n─────────────────────────────────────────");
+  console.log("  Recent Sessions");
+  console.log("─────────────────────────────────────────");
+  sessions.forEach((s, i) => {
+    console.log(
+      `  ${i + 1}. ${formatSessionDate(s.date)} — ${s.messageCount} messages`,
+    );
+  });
+  console.log("─────────────────────────────────────────\n");
 }

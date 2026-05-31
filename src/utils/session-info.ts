@@ -1,4 +1,4 @@
-import { PLAN_MODE, VERBOSE, WORKSPACE } from "../constants";
+import { flags, WORKSPACE } from "../constants";
 import { WorkspaceIndex } from "./workspace-indexer/workspace-indexer";
 
 interface SessionInfo {
@@ -23,11 +23,11 @@ export function printSessionInfo({
   );
   console.log(`  Cache     : ${cacheStatus}`);
   console.log(`  Ignored   : ${index.ignored.length} patterns`);
-  if (VERBOSE) {
+  if (flags.VERBOSE) {
     console.log(`  Ignored   : ${index.ignored.join(", ")}`);
   }
-  console.log(`  Plan Mode : ${PLAN_MODE ? "on" : "off"}`);
-  console.log(`  Verbose   : ${VERBOSE ? "on" : "off"}`);
+  console.log(`  Plan Mode : ${flags.PLAN_MODE ? "on" : "off"}`);
+  console.log(`  Verbose   : ${flags.VERBOSE ? "on" : "off"}`);
   console.log(`  Tools     : fs · shell · git`);
   console.log(`  Log       : ${loggerPath}`);
   console.log("─────────────────────────────────────────");

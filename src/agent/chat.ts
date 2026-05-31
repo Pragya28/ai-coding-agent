@@ -1,15 +1,20 @@
-import { OLLAMA_URL, VERBOSE } from "../constants";
+import { flags, OLLAMA_URL } from "../constants";
 import { SYSTEM_PROMPT } from "../prompts/system";
+import { Message } from "../types";
 import { trimMessages } from "../utils/context-manager/context-manager";
 import { Logger } from "../utils/logger";
 
-export interface Message {
-  role: "user" | "assistant" | "system";
-  content: string;
-}
-
 export function createMessages(): Message[] {
   return [{ role: "system", content: SYSTEM_PROMPT }];
+}
+
+export function resetMessages(initial?: Message[]) {
+  messages.splice(0, messages.length);
+  if (initial && initial.length > 0) {
+    messages.push(...initial);
+  } else {
+    messages.push({ role: "system", content: SYSTEM_PROMPT });
+  }
 }
 
 export const messages: Message[] = createMessages();
@@ -81,7 +86,7 @@ export async function callOllama(
     reader.releaseLock();
   }
 
-  if (VERBOSE) {
+  if (flags.VERBOSE) {
     const approxTokens = Math.round(fullContent.length / 4);
     console.log(`\n[VERBOSE] Response tokens: ~${approxTokens}`);
   }

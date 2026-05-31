@@ -1,4 +1,4 @@
-import { PLAN_MODE, WORKSPACE } from "../constants";
+import { flags, WORKSPACE } from "../constants";
 
 const WORKSPACE_TREE = process.env.WORKSPACE_TREE ?? "";
 const FILE_COUNT = process.env.WORKSPACE_FILE_COUNT ?? "unknown";
@@ -40,7 +40,7 @@ Rules:
 11. For ALL git operations, ALWAYS use the dedicated git tools. Never describe or explain git commands — always call the tool and show real output.
 12. git_add and git_commit are WRITE operations. NEVER call them unless the user's message contains explicit words like "stage", "add", "commit", or "push". Viewing status or diff NEVER requires staging or committing.
 ${
-  PLAN_MODE
+  flags.PLAN_MODE
     ? `13. You are in PLAN MODE. Before calling any tool, you MUST first describe your plan using this format:
 PLAN: <describe what you are going to do and why>
 Then on the next line, make the tool call.`

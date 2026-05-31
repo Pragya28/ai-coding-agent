@@ -1,9 +1,6 @@
-interface Message {
-  role: "user" | "assistant" | "system";
-  content: string;
-}
+import { Message } from "../../types";
 
-const MAX_MESSAGES = 20; // max non-system messages to keep
+const MAX_MESSAGES = 20;
 
 export function trimMessages(messages: Message[]): {
   trimmed: Message[];

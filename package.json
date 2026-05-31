@@ -11,6 +11,7 @@
     "dev:verbose": "tsx src/main.ts -- --verbose",
     "dev:all": "tsx src/main.ts -- --plan --verbose",
     "dev:reindex": "tsx src/main.ts -- --reindex",
+    "dev:resume": "tsx src/main.ts -- --resume",
     "serve": "OLLAMA_MAX_LOADED_MODELS=2 ollama serve",
     "build": "tsc",
     "test": "vitest run",
